@@ -180,24 +180,112 @@
         </div>
     </section>
 
-    <!-- Newsletter Section -->
-    <section class="py-16 bg-black text-white">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <h2 class="text-3xl font-light tracking-wide mb-4">
-                Restez informé
-            </h2>
-            <p class="text-gray-300 mb-8 max-w-2xl mx-auto">
-                Recevez nos dernières nouveautés et offres exclusives
-            </p>
+        <!-- Testimonials Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-light tracking-tight text-black mb-4">Ce que disent nos clients</h2>
+                <p class="text-lg text-gray-600">Témoignages de nos clients satisfaits</p>
+            </div>
             
-            <form class="flex max-w-md mx-auto">
-                <input type="email" placeholder="Votre email" 
-                       class="flex-1 px-4 py-3 bg-white text-black placeholder-gray-500 focus:outline-none">
-                <button type="submit" 
-                        class="bg-white text-black px-6 py-3 font-light tracking-wide hover:bg-gray-100 transition-all duration-300">
-                    S'abonner
+            <!-- Carrousel des avis -->
+            <div class="relative overflow-hidden">
+                <div class="flex transition-transform duration-500 ease-in-out" id="testimonials-carousel">
+                    <!-- Testimonial 1 -->
+                    <div class="w-full flex-shrink-0 px-4">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center max-w-md mx-auto">
+                            <div class="flex justify-center text-yellow-400 mb-3">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-700 text-sm mb-3">"Excellente qualité de produits et service client impeccable. Je recommande vivement !"</p>
+                            <p class="text-black font-medium text-sm">Marie L.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 2 -->
+                    <div class="w-full flex-shrink-0 px-4">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center max-w-md mx-auto">
+                            <div class="flex justify-center text-yellow-400 mb-3">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-700 text-sm mb-3">"Produits de qualité et service client au top !"</p>
+                            <p class="text-black font-medium text-sm">Thomas B.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 3 -->
+                    <div class="w-full flex-shrink-0 px-4">
+                        <div class="bg-gray-50 p-6 rounded-xl text-center max-w-md mx-auto">
+                            <div class="flex justify-center text-yellow-400 mb-3">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-700 text-sm mb-3">"Première commande parfaite ! Je reviendrai certainement."</p>
+                            <p class="text-black font-medium text-sm">Sophie M.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation du carrousel -->
+                <button class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200" onclick="prevTestimonial()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
                 </button>
-            </form>
+                <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200" onclick="nextTestimonial()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+                
+                <!-- Indicateurs -->
+                <div class="flex justify-center mt-6 space-x-2">
+                    <button class="w-2 h-2 bg-gray-300 rounded-full transition-all duration-200" onclick="goToTestimonial(0)"></button>
+                    <button class="w-2 h-2 bg-gray-300 rounded-full transition-all duration-200" onclick="goToTestimonial(1)"></button>
+                    <button class="w-2 h-2 bg-gray-300 rounded-full transition-all duration-200" onclick="goToTestimonial(2)"></button>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -213,88 +301,7 @@
     </section>
     @endif
 
-    <!-- Owner Section -->
-    @if($shop->owner_name)
-    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">Rencontrez le fondateur</h2>
-                <p class="text-xl text-gray-600">Découvrez la personne derrière {{ $shop->name }}</p>
-            </div>
-            
-            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-2">
-                    <!-- Owner Image Placeholder -->
-                    <div class="bg-gradient-to-br from-purple-600 to-pink-600 p-12 flex items-center justify-center">
-                        <div class="text-center text-white">
-                            <div class="w-32 h-32 bg-white/20 rounded-full mx-auto mb-6 flex items-center justify-center">
-                                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-2xl font-bold mb-2">{{ $shop->owner_name }}</h3>
-                            <p class="text-purple-200">Fondateur & Propriétaire</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Owner Info -->
-                    <div class="p-12">
-                        @if($shop->owner_bio)
-                        <div class="mb-8">
-                            <h4 class="text-xl font-semibold text-gray-900 mb-4">Biographie</h4>
-                            <p class="text-gray-600 leading-relaxed">{{ $shop->owner_bio }}</p>
-                        </div>
-                        @endif
-                        
-                        <div class="space-y-4">
-                            @if($shop->owner_email)
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Email</p>
-                                    <p class="text-gray-900 font-medium">{{ $shop->owner_email }}</p>
-                                </div>
-                            </div>
-                            @endif
-                            
-                            @if($shop->owner_phone)
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Téléphone</p>
-                                    <p class="text-gray-900 font-medium">{{ $shop->owner_phone }}</p>
-                                </div>
-                            </div>
-                            @endif
-                            
-                            @if($shop->owner_website)
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Site web</p>
-                                    <a href="{{ $shop->owner_website }}" target="_blank" class="text-purple-600 hover:text-purple-800 font-medium">Visiter le site</a>
-                                </div>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    @endif
+
 
     <!-- Contact Section -->
     <section id="contact" class="py-16 bg-gray-50">
@@ -322,3 +329,54 @@
         </div>
     </section>
 @endsection 
+
+@push('scripts')
+<script>
+    // Carrousel des avis
+    let currentTestimonial = 0;
+    const totalTestimonials = 3;
+    
+    function showTestimonial(index) {
+        const carousel = document.getElementById('testimonials-carousel');
+        const indicators = document.querySelectorAll('.flex.justify-center.mt-6 button');
+        
+        // Mettre à jour la position du carrousel
+        carousel.style.transform = `translateX(-${index * 100}%)`;
+        
+        // Mettre à jour les indicateurs
+        indicators.forEach((indicator, i) => {
+            if (i === index) {
+                indicator.classList.remove('bg-gray-300');
+                indicator.classList.add('bg-black');
+            } else {
+                indicator.classList.remove('bg-black');
+                indicator.classList.add('bg-gray-300');
+            }
+        });
+        
+        currentTestimonial = index;
+    }
+    
+    function nextTestimonial() {
+        const next = (currentTestimonial + 1) % totalTestimonials;
+        showTestimonial(next);
+    }
+    
+    function prevTestimonial() {
+        const prev = (currentTestimonial - 1 + totalTestimonials) % totalTestimonials;
+        showTestimonial(prev);
+    }
+    
+    function goToTestimonial(index) {
+        showTestimonial(index);
+    }
+    
+    // Auto-play du carrousel
+    setInterval(nextTestimonial, 5000);
+    
+    // Initialiser le premier avis
+    document.addEventListener('DOMContentLoaded', function() {
+        showTestimonial(0);
+    });
+</script>
+@endpush 

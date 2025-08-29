@@ -54,6 +54,16 @@ class Shop extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    public function testimonials()
+    {
+        return $this->hasMany(Testimonial::class);
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

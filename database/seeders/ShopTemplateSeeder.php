@@ -15,66 +15,83 @@ class ShopTemplateSeeder extends Seeder
     {
         $templates = [
             [
-                'name' => 'Horizon Modern',
-                'slug' => 'horizon-modern',
-                'description' => 'Template moderne et épuré inspiré de la marque Horizon, parfait pour les boutiques de mode contemporaine.',
-                'preview_image' => '/templates/horizon-modern.jpg',
-                'theme_colors' => [
-                    'primary' => '#000000',
-                    'secondary' => '#ffffff',
-                    'accent' => '#f8f9fa',
-                    'text' => '#333333',
-                    'text_light' => '#666666'
-                ],
-                'layout_options' => [
-                    'header_style' => 'minimal',
-                    'product_grid' => '4-columns',
-                    'show_newsletter' => true,
-                    'show_social_links' => true,
-                    'footer_style' => 'simple'
-                ],
+                'name' => 'Horizon Fashion',
+                'slug' => 'horizon',
+                'description' => 'Design moderne et élégant pour les boutiques de mode',
+                'preview_image' => 'horizon-preview.jpg',
+                'theme_colors' => json_encode([
+                    'primary' => '#3B82F6',
+                    'secondary' => '#8B5CF6',
+                    'accent' => '#F59E0B',
+                    'background' => '#FFFFFF',
+                    'text' => '#1F2937'
+                ]),
+                'layout_options' => json_encode([
+                    'hero_section' => true,
+                    'testimonials_carousel' => true,
+                    'featured_products' => true,
+                    'payment_methods' => true
+                ]),
                 'is_active' => true
             ],
             [
-                'name' => 'Classic E-commerce',
-                'slug' => 'classic-ecommerce',
-                'description' => 'Template classique pour e-commerce avec une mise en page traditionnelle et fonctionnelle.',
-                'preview_image' => '/templates/classic-ecommerce.jpg',
-                'theme_colors' => [
-                    'primary' => '#2c3e50',
-                    'secondary' => '#ecf0f1',
-                    'accent' => '#3498db',
-                    'text' => '#2c3e50',
-                    'text_light' => '#7f8c8d'
-                ],
-                'layout_options' => [
-                    'header_style' => 'classic',
-                    'product_grid' => '3-columns',
-                    'show_newsletter' => true,
-                    'show_social_links' => true,
-                    'footer_style' => 'detailed'
-                ],
+                'name' => 'TechStore',
+                'slug' => 'tech',
+                'description' => 'Style technologique pour les boutiques d\'électronique',
+                'preview_image' => 'tech-preview.jpg',
+                'theme_colors' => json_encode([
+                    'primary' => '#06B6D4',
+                    'secondary' => '#3B82F6',
+                    'accent' => '#10B981',
+                    'background' => '#FFFFFF',
+                    'text' => '#0F172A'
+                ]),
+                'layout_options' => json_encode([
+                    'hero_section' => true,
+                    'tech_features' => true,
+                    'product_specs' => true,
+                    'support_info' => true
+                ]),
                 'is_active' => true
             ],
             [
-                'name' => 'Minimalist Fashion',
-                'slug' => 'minimalist-fashion',
-                'description' => 'Template minimaliste spécialement conçu pour les boutiques de mode avec un design épuré.',
-                'preview_image' => '/templates/minimalist-fashion.jpg',
-                'theme_colors' => [
-                    'primary' => '#ffffff',
-                    'secondary' => '#f5f5f5',
-                    'accent' => '#000000',
-                    'text' => '#000000',
-                    'text_light' => '#999999'
-                ],
-                'layout_options' => [
-                    'header_style' => 'minimal',
-                    'product_grid' => '2-columns',
-                    'show_newsletter' => false,
-                    'show_social_links' => true,
-                    'footer_style' => 'minimal'
-                ],
+                'name' => 'LuxeMode',
+                'slug' => 'luxe',
+                'description' => 'Design premium et sophistiqué pour les boutiques de luxe',
+                'preview_image' => 'luxe-preview.jpg',
+                'theme_colors' => json_encode([
+                    'primary' => '#8B5CF6',
+                    'secondary' => '#EC4899',
+                    'accent' => '#F59E0B',
+                    'background' => '#FFFFFF',
+                    'text' => '#111827'
+                ]),
+                'layout_options' => json_encode([
+                    'hero_section' => true,
+                    'luxury_features' => true,
+                    'premium_content' => true,
+                    'elegant_footer' => true
+                ]),
+                'is_active' => true
+            ],
+            [
+                'name' => 'Template Par Défaut',
+                'slug' => 'default',
+                'description' => 'Template classique et polyvalent pour tous types de boutiques',
+                'preview_image' => 'default-preview.jpg',
+                'theme_colors' => json_encode([
+                    'primary' => '#6B7280',
+                    'secondary' => '#9CA3AF',
+                    'accent' => '#F59E0B',
+                    'background' => '#FFFFFF',
+                    'text' => '#374151'
+                ]),
+                'layout_options' => json_encode([
+                    'hero_section' => true,
+                    'basic_layout' => true,
+                    'simple_navigation' => true,
+                    'clean_footer' => true
+                ]),
                 'is_active' => true
             ]
         ];
@@ -82,5 +99,7 @@ class ShopTemplateSeeder extends Seeder
         foreach ($templates as $template) {
             ShopTemplate::create($template);
         }
+
+        $this->command->info('4 templates de boutique ont été créés avec succès !');
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Shop;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ShopFrontendController extends Controller
 {
@@ -101,9 +102,9 @@ class ShopFrontendController extends Controller
     }
 
     /**
-     * Détails d'un produit
+     * Page produit individuel
      */
-    public function product(Request $request, $productId, Shop $shop = null)
+    public function product(Request $request, $productId, $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
@@ -115,20 +116,16 @@ class ShopFrontendController extends Controller
         }
 
         $product = $shop->products()
-            ->where('id', $productId)
             ->with('category')
             ->active()
-            ->first();
+            ->findOrFail($productId);
 
-        if (!$product) {
-            abort(404);
-        }
-
-        // Produits similaires
+        // Produits similaires (même catégorie)
         $relatedProducts = $shop->products()
+            ->with('category')
+            ->active()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->active()
             ->take(4)
             ->get();
 
@@ -138,7 +135,7 @@ class ShopFrontendController extends Controller
     /**
      * Produits par catégorie
      */
-    public function category(Request $request, $categorySlug, Shop $shop = null)
+    public function category(Request $request, $categorySlug, $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
@@ -167,7 +164,7 @@ class ShopFrontendController extends Controller
     /**
      * Panier
      */
-    public function cart(Request $request, Shop $shop = null)
+    public function cart(Request $request, $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
@@ -185,9 +182,9 @@ class ShopFrontendController extends Controller
     }
 
     /**
-     * Page de paiement
+     * Page de paiement (nécessite authentification)
      */
-    public function paymentInfo(Request $request, Shop $shop = null)
+    public function paymentInfo(Request $request, $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
@@ -198,13 +195,25 @@ class ShopFrontendController extends Controller
             }
         }
 
-        return view('shop.payment-info', compact('shop'));
+        // Vérifier que l'utilisateur est connecté
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+        }
+
+        // Récupérer le panier depuis la session
+        $cart = session()->get('cart_' . $shop->id, []);
+        
+        if (empty($cart)) {
+            return redirect()->route('shop.cart')->with('error', 'Votre panier est vide.');
+        }
+
+        return view('shop.payment-info', compact('shop', 'cart'));
     }
 
     /**
-     * Traitement de la commande
+     * Traitement de la commande (nécessite authentification)
      */
-    public function checkout(Request $request, Shop $shop = null)
+    public function checkout(Request $request, $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
@@ -213,6 +222,18 @@ class ShopFrontendController extends Controller
             if (!$shop) {
                 abort(404);
             }
+        }
+
+        // Vérifier que l'utilisateur est connecté
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour passer une commande.');
+        }
+
+        // Récupérer le panier depuis la session
+        $cart = session()->get('cart_' . $shop->id, []);
+        
+        if (empty($cart)) {
+            return redirect()->route('shop.cart')->with('error', 'Votre panier est vide.');
         }
 
         $validated = $request->validate([
@@ -224,9 +245,10 @@ class ShopFrontendController extends Controller
             'total_amount' => 'required|numeric|min:0',
         ]);
 
-        // Créer la commande
+        // Créer la commande avec l'ID de l'utilisateur connecté
         $order = $shop->orders()->create([
             'order_number' => \App\Models\Order::generateOrderNumber(),
+            'user_id' => Auth::id(), // Ajouter l'ID de l'utilisateur connecté
             'customer_name' => $validated['customer_name'],
             'customer_email' => $validated['customer_email'],
             'customer_phone' => $validated['customer_phone'],
