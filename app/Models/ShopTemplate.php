@@ -39,4 +39,18 @@ class ShopTemplate extends Model
     {
         return $query->where('is_active', true);
     }
+    
+    public function getFormattedColorsAttribute()
+    {
+        return $this->theme_colors ?? [];
+    }
+
+    /**
+     * Obtenir les options de mise en page formatées
+     */
+    public function getFormattedLayoutAttribute()
+    {
+        return $this->layout_options ?? [];
+    }
+    
 }

@@ -285,13 +285,23 @@
 </div>
 
 <style>
-.template-option input[type="radio"]:checked + div {
-    border-color: #3b82f6;
-    background-color: #eff6ff;
+.template-option {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
 }
 
-.template-option input[type="radio"]:checked + div .radio-dot {
-    display: block;
+.template-option:hover {
+    border-color: #93C5FD;
+    background-color: #F8FAFC;
+}
+
+.template-option.selected {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+
+.radio-dot {
+    transition: all 0.2s ease-in-out;
 }
 </style>
 
@@ -324,4 +334,48 @@ document.querySelectorAll('input[name="template"]').forEach(radio => {
     });
 });
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const templateOptions = document.querySelectorAll('input[name="template"]');
+    const templateLabels = document.querySelectorAll('.template-option');
+    const radioDots = document.querySelectorAll('.radio-dot');
+
+    // Fonction pour mettre à jour la sélection visuelle
+    function updateSelection() {
+        templateOptions.forEach((option, index) => {
+            const label = templateLabels[index];
+            const dot = radioDots[index];
+            
+            if (option.checked) {
+                label.classList.remove('border-gray-200');
+                label.classList.add('border-blue-500', 'bg-blue-50');
+                dot.classList.remove('hidden');
+            } else {
+                label.classList.remove('border-blue-500', 'bg-blue-50');
+                label.classList.add('border-gray-200');
+                dot.classList.add('hidden');
+            }
+        });
+    }
+
+    // Écouter les changements de sélection
+    templateOptions.forEach(option => {
+        option.addEventListener('change', updateSelection);
+    });
+
+    // Initialiser la sélection
+    updateSelection();
+
+    // Ajouter des événements de clic sur les labels
+    templateLabels.forEach((label, index) => {
+        label.addEventListener('click', () => {
+            templateOptions[index].checked = true;
+            updateSelection();
+        });
+    });
+});
+</script>
+
 @endsection

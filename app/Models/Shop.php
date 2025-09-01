@@ -64,6 +64,11 @@ class Shop extends Model
         return $this->hasMany(Testimonial::class);
     }
 
+    public function paymentMethods()
+    {
+        return $this->hasMany(PaymentMethod::class)->ordered();
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

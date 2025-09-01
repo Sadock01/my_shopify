@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Testimonial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ShopController extends Controller
@@ -30,96 +31,168 @@ class ShopController extends Controller
         return view('admin.shops.create', compact('templates'));
     }
 
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'slug' => 'required|string|unique:shops|max:255',
+    //         'description' => 'required|string',
+    //         'template' => 'required|string|in:horizon,tech,luxe,default',
+    //         'logo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+    //         'banner' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+    //         'owner_name' => 'required|string|max:255',
+    //         'owner_email' => 'required|email',
+    //         'owner_phone' => 'nullable|string|max:20',
+    //         'owner_website' => 'nullable|url',
+    //         'contact_email' => 'required|email',
+    //         'contact_phone' => 'nullable|string|max:20',
+    //         'is_active' => 'boolean'
+    //     ]);
+
+    //     // Récupérer le template par défaut si aucun n'est sélectionné
+    //     if (!isset($validated['template']) || empty($validated['template'])) {
+    //         $defaultTemplate = \App\Models\ShopTemplate::where('slug', 'default')->first();
+    //         if (!$defaultTemplate) {
+    //             // Créer un template par défaut si il n'existe pas
+    //             $defaultTemplate = \App\Models\ShopTemplate::create([
+    //                 'name' => 'Template Par Défaut',
+    //                 'slug' => 'default',
+    //                 'description' => 'Template classique et polyvalent',
+    //                 'preview_image' => 'default-preview.jpg',
+    //                 'theme_colors' => json_encode(['primary' => '#6B7280', 'secondary' => '#9CA3AF']),
+    //                 'layout_options' => json_encode(['basic' => true]),
+    //                 'is_active' => true
+    //             ]);
+    //         }
+    //         $validated['template_id'] = $defaultTemplate->id;
+    //     } else {
+    //         // Récupérer le template sélectionné
+    //         $selectedTemplate = \App\Models\ShopTemplate::where('slug', $validated['template'])->first();
+    //         if ($selectedTemplate) {
+    //             $validated['template_id'] = $selectedTemplate->id;
+    //         } else {
+    //             // Fallback sur le template par défaut
+    //             $defaultTemplate = \App\Models\ShopTemplate::where('slug', 'default')->first();
+    //             $validated['template_id'] = $defaultTemplate->id;
+    //         }
+    //     }
+
+    //     // Ajouter les champs JSON obligatoires
+    //     $validated['theme_settings'] = json_encode([
+    //         'primary_color' => '#3B82F6',
+    //         'secondary_color' => '#8B5CF6',
+    //         'accent_color' => '#F59E0B',
+    //         'text_color' => '#1F2937',
+    //         'background_color' => '#FFFFFF',
+    //         'font_family' => 'Inter, sans-serif'
+    //     ]);
+
+    //     $validated['payment_info'] = json_encode([
+    //         'bank_name' => 'Banque Populaire',
+    //         'account_number' => 'FR76 1234 5678 9012 3456 7890 123',
+    //         'swift_code' => 'BAPPFR22XXX',
+    //         'payment_methods' => ['Virement bancaire', 'Chèque', 'Espèces']
+    //     ]);
+
+    //     // Ajouter les champs manquants
+    //     $validated['banner_image'] = null;
+    //     $validated['domain'] = null;
+    //     $validated['about_text'] = null;
+    //     $validated['social_links'] = json_encode([
+    //         'facebook' => null,
+    //         'twitter' => null,
+    //         'instagram' => null,
+    //         'linkedin' => null
+    //     ]);
+
+    //     // Créer la boutique
+    //     $shop = Shop::create($validated);
+
+    //     // Upload des images
+    //     $this->uploadImages($shop, $request);
+
+    //     // Créer les catégories par défaut
+    //     $this->createDefaultCategories($shop);
+
+    //     // Créer quelques avis par défaut pour la pub
+    //     $this->createDefaultTestimonials($shop);
+
+    //     return redirect()->route('admin.shops.index')
+    //         ->with('success', 'Boutique "' . $shop->name . '" créée avec succès !');
+    // }
     public function store(Request $request)
     {
+        // Validation
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:shops|max:255',
+            'slug' => 'required|string|unique:shops,slug|max:255',
             'description' => 'required|string',
-            'template' => 'required|string|in:horizon,tech,luxe,default',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'banner' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'template' => 'required|string',
+            'logo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB max
+            'banner' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
             'owner_name' => 'required|string|max:255',
-            'owner_email' => 'required|email',
+            'owner_email' => 'required|email|max:255',
             'owner_phone' => 'nullable|string|max:20',
-            'owner_website' => 'nullable|url',
-            'contact_email' => 'required|email',
+            'owner_website' => 'nullable|url|max:255',
+            'contact_email' => 'required|email|max:255',
             'contact_phone' => 'nullable|string|max:20',
             'is_active' => 'boolean'
         ]);
-
-        // Récupérer le template par défaut si aucun n'est sélectionné
-        if (!isset($validated['template']) || empty($validated['template'])) {
-            $defaultTemplate = \App\Models\ShopTemplate::where('slug', 'default')->first();
-            if (!$defaultTemplate) {
-                // Créer un template par défaut si il n'existe pas
-                $defaultTemplate = \App\Models\ShopTemplate::create([
-                    'name' => 'Template Par Défaut',
-                    'slug' => 'default',
-                    'description' => 'Template classique et polyvalent',
-                    'preview_image' => 'default-preview.jpg',
-                    'theme_colors' => json_encode(['primary' => '#6B7280', 'secondary' => '#9CA3AF']),
-                    'layout_options' => json_encode(['basic' => true]),
-                    'is_active' => true
-                ]);
+    
+        try {
+            DB::beginTransaction();
+    
+            // Créer la boutique
+            $template = $validated['template'] ?? 'default';
+            $shop = Shop::create([
+                'name' => $validated['name'],
+                'slug' => $validated['slug'],
+                'description' => $validated['description'],
+                'template' => $validated['template'],
+                'owner_name' => $validated['owner_name'],
+                'owner_email' => $validated['owner_email'],
+                'owner_phone' => $validated['owner_phone'],
+                'owner_website' => $validated['owner_website'],
+                'contact_email' => $validated['contact_email'],
+                'contact_phone' => $validated['contact_phone'],
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+    
+            // Upload des images
+            if ($request->hasFile('logo')) {
+                $logoPath = $request->file('logo')->store("shops/{$shop->slug}", 'public');
+                $shop->update(['logo' => $logoPath]);
             }
-            $validated['template_id'] = $defaultTemplate->id;
-        } else {
-            // Récupérer le template sélectionné
-            $selectedTemplate = \App\Models\ShopTemplate::where('slug', $validated['template'])->first();
-            if ($selectedTemplate) {
-                $validated['template_id'] = $selectedTemplate->id;
-            } else {
-                // Fallback sur le template par défaut
-                $defaultTemplate = \App\Models\ShopTemplate::where('slug', 'default')->first();
-                $validated['template_id'] = $defaultTemplate->id;
+    
+            if ($request->hasFile('banner')) {
+                $bannerPath = $request->file('banner')->store("shops/{$shop->slug}", 'public');
+                $shop->update(['banner_image' => $bannerPath]);
             }
+    
+            // Créer les éléments par défaut
+            $this->createDefaultCategories($shop);
+            $this->createDefaultTestimonials($shop);
+    
+            DB::commit();
+    
+            return redirect()->route('admin.shops.index')
+                ->with('success', 'Boutique créée avec succès !');
+    
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            // Supprimer les images uploadées en cas d'erreur
+            if (isset($logoPath)) {
+                Storage::disk('public')->delete($logoPath);
+            }
+            if (isset($bannerPath)) {
+                Storage::disk('public')->delete($bannerPath);
+            }
+    
+            return back()->withInput()
+                ->with('error', 'Erreur lors de la création de la boutique: ' . $e->getMessage());
         }
-
-        // Ajouter les champs JSON obligatoires
-        $validated['theme_settings'] = json_encode([
-            'primary_color' => '#3B82F6',
-            'secondary_color' => '#8B5CF6',
-            'accent_color' => '#F59E0B',
-            'text_color' => '#1F2937',
-            'background_color' => '#FFFFFF',
-            'font_family' => 'Inter, sans-serif'
-        ]);
-
-        $validated['payment_info'] = json_encode([
-            'bank_name' => 'Banque Populaire',
-            'account_number' => 'FR76 1234 5678 9012 3456 7890 123',
-            'swift_code' => 'BAPPFR22XXX',
-            'payment_methods' => ['Virement bancaire', 'Chèque', 'Espèces']
-        ]);
-
-        // Ajouter les champs manquants
-        $validated['banner_image'] = null;
-        $validated['domain'] = null;
-        $validated['about_text'] = null;
-        $validated['social_links'] = json_encode([
-            'facebook' => null,
-            'twitter' => null,
-            'instagram' => null,
-            'linkedin' => null
-        ]);
-
-        // Créer la boutique
-        $shop = Shop::create($validated);
-
-        // Upload des images
-        $this->uploadImages($shop, $request);
-
-        // Créer les catégories par défaut
-        $this->createDefaultCategories($shop);
-
-        // Créer quelques avis par défaut pour la pub
-        $this->createDefaultTestimonials($shop);
-
-        return redirect()->route('admin.shops.index')
-            ->with('success', 'Boutique "' . $shop->name . '" créée avec succès !');
     }
-
     public function edit(Shop $shop)
     {
         $templates = \App\Models\ShopTemplate::where('is_active', true)->get();

@@ -36,8 +36,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
     Route::get('/shops/{shop}/manage', [App\Http\Controllers\Admin\ShopController::class, 'manage'])->name('shops.manage');
     
-    // Gestion des templates
-    Route::get('/templates', [App\Http\Controllers\Admin\TemplateController::class, 'index'])->name('templates.index');
+    // Gestion des moyens de paiement
+Route::resource('shops.payment-methods', App\Http\Controllers\Admin\PaymentMethodController::class);
+
+// Gestion des catégories
+Route::resource('shops.categories', App\Http\Controllers\Admin\CategoryController::class);
+
+// Gestion des produits
+Route::resource('shops.products', App\Http\Controllers\Admin\ProductController::class);
+
+// Gestion des témoignages
+Route::resource('shops.testimonials', App\Http\Controllers\Admin\TestimonialController::class);
+
+// Gestion des utilisateurs
+Route::resource('users', App\Http\Controllers\Admin\UserController::class);
+Route::post('/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+Route::get('/users/search', [App\Http\Controllers\Admin\UserController::class, 'search'])->name('users.search');
+
+// Gestion des templates
+Route::get('/templates', [App\Http\Controllers\Admin\TemplateController::class, 'index'])->name('templates.index');
     Route::get('/templates/{template}/preview', [App\Http\Controllers\Admin\TemplateController::class, 'preview'])->name('templates.preview');
     Route::get('/templates/{template}/customize', [App\Http\Controllers\Admin\TemplateController::class, 'customize'])->name('templates.customize');
 });

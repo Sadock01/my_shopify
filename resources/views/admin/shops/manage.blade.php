@@ -5,6 +5,9 @@
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Gérer la Boutique : {{ $shop->name }}</h1>
         <div class="flex space-x-3">
+            <a href="{{ route('admin.shops.payment-methods.index', $shop) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                Moyens de Paiement
+            </a>
             <a href="{{ route('admin.shops.edit', $shop) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Modifier
             </a>
@@ -94,9 +97,9 @@
     <div class="bg-white shadow-md rounded-lg p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900">Catégories</h2>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <a href="{{ route('admin.shops.categories.create', $shop) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Ajouter une catégorie
-            </button>
+            </a>
         </div>
         
         @if($shop->categories && $shop->categories->count() > 0)
@@ -132,8 +135,14 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Modifier</a>
-                                <a href="#" class="text-red-600 hover:text-red-900">Supprimer</a>
+                                <a href="{{ route('admin.shops.categories.edit', [$shop, $category]) }}" class="text-blue-600 hover:text-blue-900 mr-3">Modifier</a>
+                                <form action="{{ route('admin.shops.categories.destroy', [$shop, $category]) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')">
+                                        Supprimer
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         @endforeach
@@ -149,9 +158,9 @@
     <div class="bg-white shadow-md rounded-lg p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900">Témoignages Clients</h2>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <a href="{{ route('admin.shops.testimonials.create', $shop) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Ajouter un témoignage
-            </button>
+            </a>
         </div>
         
         @if($shop->testimonials && $shop->testimonials->count() > 0)
@@ -181,8 +190,14 @@
                             @endif
                         </div>
                         <div class="flex space-x-2">
-                            <button class="text-blue-600 hover:text-blue-900 text-sm">Modifier</button>
-                            <button class="text-red-600 hover:text-red-900 text-sm">Supprimer</button>
+                            <a href="{{ route('admin.shops.testimonials.edit', [$shop, $testimonial]) }}" class="text-blue-600 hover:text-blue-900 text-sm">Modifier</a>
+                            <form action="{{ route('admin.shops.testimonials.destroy', [$shop, $testimonial]) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900 text-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce témoignage ?')">
+                                    Supprimer
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -197,9 +212,9 @@
     <div class="bg-white shadow-md rounded-lg p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900">Produits Récents</h2>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+            <a href="{{ route('admin.shops.products.create', $shop) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Ajouter un produit
-            </button>
+            </a>
         </div>
         
         @if($shop->products && $shop->products->count() > 0)
@@ -221,8 +236,14 @@
                             <span class="text-xs text-gray-500">Stock: {{ $product->stock }}</span>
                         </div>
                         <div class="mt-3 flex space-x-2">
-                            <button class="text-blue-600 hover:text-blue-900 text-sm">Modifier</button>
-                            <button class="text-red-600 hover:text-red-900 text-sm">Supprimer</button>
+                            <a href="{{ route('admin.shops.products.edit', [$shop, $product]) }}" class="text-blue-600 hover:text-blue-900 text-sm">Modifier</a>
+                            <form action="{{ route('admin.shops.products.destroy', [$shop, $product]) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900 text-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                                    Supprimer
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -231,7 +252,7 @@
             
             @if($shop->products->count() > 6)
                 <div class="mt-4 text-center">
-                    <a href="#" class="text-blue-600 hover:text-blue-900 font-medium">
+                    <a href="{{ route('admin.shops.products.index', $shop) }}" class="text-blue-600 hover:text-blue-900 font-medium">
                         Voir tous les produits ({{ $shop->products->count() }})
                     </a>
                 </div>
