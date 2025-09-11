@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -8,56 +7,31 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShopFrontendController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ShopAuthController;
+use Illuminate\Support\Facades\Auth;
 
+// ========================================
+// ROUTES D'ACCUEIL ET GÉNÉRALES
+// ========================================
+
+// Route d'accueil principale
 Route::get('/', function () {
+    // Si l'utilisateur est connecté, le rediriger vers une boutique active ou le dashboard admin
+    if (Auth::check()) {
+        if (Auth::user()->is_admin) {
+            return redirect()->route('admin.dashboard');
+        }
+        
+        // Rediriger vers la première boutique active
+        $activeShop = \App\Models\Shop::active()->first();
+        if ($activeShop) {
+            return redirect()->route('shop.home.slug', ['shop' => $activeShop->slug]);
+        }
+    }
+    
+    // Sinon, afficher la page d'accueil
     return view('welcome');
-});
-
-// Routes d'authentification
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
-
-Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
-
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-// Routes Admin
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
-    
-    // Gestion des boutiques
-    Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
-    Route::get('/shops/{shop}/manage', [App\Http\Controllers\Admin\ShopController::class, 'manage'])->name('shops.manage');
-    
-    // Gestion des moyens de paiement
-Route::resource('shops.payment-methods', App\Http\Controllers\Admin\PaymentMethodController::class);
-
-// Gestion des catégories
-Route::resource('shops.categories', App\Http\Controllers\Admin\CategoryController::class);
-
-// Gestion des produits
-Route::resource('shops.products', App\Http\Controllers\Admin\ProductController::class);
-
-// Gestion des témoignages
-Route::resource('shops.testimonials', App\Http\Controllers\Admin\TestimonialController::class);
-
-// Gestion des utilisateurs
-Route::resource('users', App\Http\Controllers\Admin\UserController::class);
-Route::post('/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
-Route::get('/users/search', [App\Http\Controllers\Admin\UserController::class, 'search'])->name('users.search');
-
-// Gestion des templates
-Route::get('/templates', [App\Http\Controllers\Admin\TemplateController::class, 'index'])->name('templates.index');
-    Route::get('/templates/{template}/preview', [App\Http\Controllers\Admin\TemplateController::class, 'preview'])->name('templates.preview');
-    Route::get('/templates/{template}/customize', [App\Http\Controllers\Admin\TemplateController::class, 'customize'])->name('templates.customize');
-});
+})->name('home');
 
 // Route de démonstration pour accéder aux boutiques
 Route::get('/demo', function () {
@@ -65,7 +39,62 @@ Route::get('/demo', function () {
     return view('demo', compact('shops'));
 })->name('demo');
 
-// Routes pour les boutiques (avec domaine personnalisé)
+// ========================================
+// ROUTES D'AUTHENTIFICATION ADMIN
+// ========================================
+
+// Routes de connexion/inscription pour le dashboard admin
+Route::get('/admin/login', function () {
+    return view('auth.login');
+})->name('admin.login');
+
+Route::get('/admin/register', function () {
+    return view('auth.register');
+})->name('admin.register');
+
+Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.login.post');
+Route::post('/admin/register', [RegisterController::class, 'register'])->name('admin.register.post');
+Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
+
+// ========================================
+// ROUTES ADMIN (PROTÉGÉES)
+// ========================================
+
+Route::middleware(['auth', 'admin', 'refresh.session'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // Gestion des boutiques
+    Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
+    Route::get('/shops/{shop}/manage', [App\Http\Controllers\Admin\ShopController::class, 'manage'])->name('shops.manage');
+    Route::post('/shops/{shop}/toggle-status', [App\Http\Controllers\Admin\ShopController::class, 'toggleStatus'])->name('shops.toggle-status');
+    
+    // Gestion des moyens de paiement
+    Route::resource('shops.payment-methods', App\Http\Controllers\Admin\PaymentMethodController::class);
+
+    // Gestion des catégories
+    Route::resource('shops.categories', App\Http\Controllers\Admin\CategoryController::class);
+
+    // Gestion des produits
+    Route::resource('shops.products', App\Http\Controllers\Admin\ProductController::class);
+
+    // Gestion des témoignages
+    Route::resource('shops.testimonials', App\Http\Controllers\Admin\TestimonialController::class);
+
+    // Gestion des utilisateurs
+    Route::resource('users', App\Http\Controllers\Admin\UserController::class);
+    Route::post('/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::get('/users/search', [App\Http\Controllers\Admin\UserController::class, 'search'])->name('users.search');
+
+    // Gestion des templates
+    Route::get('/templates', [App\Http\Controllers\Admin\TemplateController::class, 'index'])->name('templates.index');
+    Route::get('/templates/{template}/preview', [App\Http\Controllers\Admin\TemplateController::class, 'preview'])->name('templates.preview');
+    Route::get('/templates/{template}/customize', [App\Http\Controllers\Admin\TemplateController::class, 'customize'])->name('templates.customize');
+});
+
+// ========================================
+// ROUTES BOUTIQUES (AVEC DOMAINE PERSONNALISÉ)
+// ========================================
+
 Route::middleware(['detect.shop'])->group(function () {
     Route::get('/', [ShopFrontendController::class, 'home'])->name('shop.home');
     Route::get('/products', [ShopFrontendController::class, 'products'])->name('shop.products');
@@ -73,14 +102,28 @@ Route::middleware(['detect.shop'])->group(function () {
     Route::get('/category/{categorySlug}', [ShopFrontendController::class, 'category'])->name('shop.category');
     Route::get('/cart', [ShopFrontendController::class, 'cart'])->name('shop.cart');
     
+    // Routes d'authentification avec template de boutique
+    Route::get('/login', [ShopAuthController::class, 'showLogin'])->name('shop.login');
+    Route::post('/login', [ShopAuthController::class, 'login'])->name('shop.login.post');
+    Route::get('/register', [ShopAuthController::class, 'showRegister'])->name('shop.register');
+    Route::post('/register', [ShopAuthController::class, 'register'])->name('shop.register.post');
+    Route::post('/logout', [ShopAuthController::class, 'logout'])->name('shop.logout');
+    
+    // Routes multi-boutiques
+    Route::post('/switch-shop/{targetShop}', [ShopAuthController::class, 'switchShop'])->name('shop.switch');
+    Route::post('/logout-shop/{targetShop}', [ShopAuthController::class, 'logoutFromShop'])->name('shop.logout.specific');
+    
     // Routes protégées par authentification
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth', 'refresh.session'])->group(function () {
         Route::post('/checkout', [ShopFrontendController::class, 'checkout'])->name('shop.checkout');
         Route::get('/payment-info', [ShopFrontendController::class, 'paymentInfo'])->name('shop.payment-info');
     });
 });
 
-// Routes pour les boutiques sans domaine personnalisé (avec slug)
+// ========================================
+// ROUTES BOUTIQUES (AVEC SLUG)
+// ========================================
+
 Route::prefix('shop/{shop:slug}')->group(function () {
     Route::get('/', [ShopFrontendController::class, 'home'])->name('shop.home.slug');
     Route::get('/products', [ShopFrontendController::class, 'products'])->name('shop.products.slug');
@@ -88,9 +131,36 @@ Route::prefix('shop/{shop:slug}')->group(function () {
     Route::get('/category/{categorySlug}', [ShopFrontendController::class, 'category'])->name('shop.category.slug');
     Route::get('/cart', [ShopFrontendController::class, 'cart'])->name('shop.cart.slug');
     
+    // Routes d'authentification avec template de boutique
+    Route::get('/login', [ShopAuthController::class, 'showLogin'])->name('shop.login.slug');
+    Route::post('/login', [ShopAuthController::class, 'login'])->name('shop.login.slug.post');
+    Route::get('/register', [ShopAuthController::class, 'showRegister'])->name('shop.register.slug');
+    Route::post('/register', [ShopAuthController::class, 'register'])->name('shop.register.slug.post');
+    Route::post('/logout', [ShopAuthController::class, 'logout'])->name('shop.logout.slug');
+    
+    // Routes multi-boutiques
+    Route::post('/switch-shop/{targetShop}', [ShopAuthController::class, 'switchShop'])->name('shop.switch.slug');
+    Route::post('/logout-shop/{targetShop}', [ShopAuthController::class, 'logoutFromShop'])->name('shop.logout.specific.slug');
+    
     // Routes protégées par authentification
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth', 'refresh.session'])->group(function () {
         Route::post('/checkout', [ShopFrontendController::class, 'checkout'])->name('shop.checkout.slug');
         Route::get('/payment-info', [ShopFrontendController::class, 'paymentInfo'])->name('shop.payment-info.slug');
     });
 });
+
+// ========================================
+// ROUTES UTILITAIRES
+// ========================================
+
+// Routes pour la gestion des sessions
+Route::get('/refresh-csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('refresh.csrf');
+
+Route::get('/check-session', function () {
+    if (Auth::check()) {
+        return response()->json(['status' => 'active']);
+    }
+    return response()->json(['status' => 'expired'], 401);
+})->name('check.session');

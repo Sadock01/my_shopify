@@ -255,6 +255,7 @@
             <!-- Statut -->
             <div class="border-t border-gray-200 pt-8 mb-8">
                 <div class="flex items-center">
+                    <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" 
                            id="is_active" 
                            name="is_active" 

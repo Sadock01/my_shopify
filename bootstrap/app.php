@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'detect.shop' => \App\Http\Middleware\DetectShop::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'refresh.session' => \App\Http\Middleware\RefreshSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

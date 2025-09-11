@@ -142,13 +142,31 @@ class ShopController extends Controller
         try {
             DB::beginTransaction();
     
+            // Récupérer le template sélectionné ou utiliser le template par défaut
+            $templateSlug = $validated['template'] ?? 'default';
+            $template = \App\Models\ShopTemplate::where('slug', $templateSlug)->first();
+            
+            if (!$template) {
+                // Si le template n'existe pas, utiliser le template par défaut
+                $template = \App\Models\ShopTemplate::where('slug', 'default')->first();
+                
+                if (!$template) {
+                    // Créer le template par défaut s'il n'existe pas
+                    $template = \App\Models\ShopTemplate::create([
+                        'name' => 'Template Par Défaut',
+                        'slug' => 'default',
+                        'description' => 'Template classique et polyvalent',
+                        'is_active' => true
+                    ]);
+                }
+            }
+    
             // Créer la boutique
-            $template = $validated['template'] ?? 'default';
             $shop = Shop::create([
                 'name' => $validated['name'],
                 'slug' => $validated['slug'],
                 'description' => $validated['description'],
-                'template' => $validated['template'],
+                'template_id' => $template->id,
                 'owner_name' => $validated['owner_name'],
                 'owner_email' => $validated['owner_email'],
                 'owner_phone' => $validated['owner_phone'],
@@ -156,6 +174,27 @@ class ShopController extends Controller
                 'contact_email' => $validated['contact_email'],
                 'contact_phone' => $validated['contact_phone'],
                 'is_active' => $validated['is_active'] ?? true,
+                // Champs JSON obligatoires
+                'theme_settings' => json_encode([
+                    'primary_color' => '#3B82F6',
+                    'secondary_color' => '#8B5CF6',
+                    'accent_color' => '#F59E0B',
+                    'text_color' => '#1F2937',
+                    'background_color' => '#FFFFFF',
+                    'font_family' => 'Montserrat, sans-serif'
+                ]),
+                'payment_info' => json_encode([
+                    'bank_name' => 'Banque Populaire',
+                    'account_number' => 'FR76 1234 5678 9012 3456 7890 123',
+                    'swift_code' => 'BAPPFR22XXX',
+                    'payment_methods' => ['Virement bancaire', 'Chèque', 'Espèces']
+                ]),
+                'social_links' => json_encode([
+                    'facebook' => null,
+                    'twitter' => null,
+                    'instagram' => null,
+                    'linkedin' => null
+                ])
             ]);
     
             // Upload des images
@@ -169,9 +208,10 @@ class ShopController extends Controller
                 $shop->update(['banner_image' => $bannerPath]);
             }
     
-            // Créer les éléments par défaut
+            // Créer les catégories par défaut seulement
             $this->createDefaultCategories($shop);
-            $this->createDefaultTestimonials($shop);
+            
+            // Ne pas créer de témoignages par défaut - utiliser ceux créés par l'utilisateur
     
             DB::commit();
     
@@ -246,6 +286,19 @@ class ShopController extends Controller
             ->with('success', 'Boutique supprimée avec succès !');
     }
 
+    public function toggleStatus(Shop $shop)
+    {
+        $shop->update(['is_active' => !$shop->is_active]);
+        
+        $status = $shop->is_active ? 'activée' : 'désactivée';
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Boutique {$status} avec succès !",
+            'is_active' => $shop->is_active
+        ]);
+    }
+
     public function manage(Shop $shop)
     {
         $shop->load([
@@ -301,11 +354,18 @@ class ShopController extends Controller
         ];
 
         foreach ($defaultCategories as $category) {
-            Category::create([
-                'shop_id' => $shop->id,
-                'name' => $category['name'],
-                'slug' => $category['slug']
-            ]);
+            // Vérifier si la catégorie existe déjà pour cette boutique
+            $existingCategory = Category::where('shop_id', $shop->id)
+                                      ->where('slug', $category['slug'])
+                                      ->first();
+            
+            if (!$existingCategory) {
+                Category::create([
+                    'shop_id' => $shop->id,
+                    'name' => $category['name'],
+                    'slug' => $category['slug']
+                ]);
+            }
         }
     }
 

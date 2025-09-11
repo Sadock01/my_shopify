@@ -28,6 +28,7 @@ Route::get('/test', function () {
     ]);
 });
 
+
 // Routes pour les templates de boutiques
 Route::apiResource('templates', ShopTemplateController::class);
 

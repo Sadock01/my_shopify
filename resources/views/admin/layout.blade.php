@@ -5,20 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Panel Admin') - MyShopify</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .sidebar { transition: all 0.3s ease; }
-        .sidebar.collapsed { width: 4rem; }
-        .sidebar.collapsed .sidebar-text { display: none; }
-        .sidebar.collapsed .sidebar-icon { margin: 0 auto; }
-        .main-content { transition: all 0.3s ease; }
-        .sidebar.collapsed + .main-content { margin-left: 4rem; }
+        body { 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+        
+        .sidebar { 
+            transition: all 0.3s ease; 
+        }
+        .sidebar.collapsed { 
+            width: 4rem; 
+        }
+        .sidebar.collapsed .sidebar-text { 
+            display: none; 
+        }
+        .sidebar.collapsed .sidebar-icon { 
+            margin: 0 auto; 
+        }
+        .main-content { 
+            transition: all 0.3s ease; 
+        }
+        .sidebar.collapsed + .main-content { 
+            margin-left: 4rem; 
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 16rem;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        /* Tablet Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 5rem;
+            }
+            .sidebar .sidebar-text {
+                display: none;
+            }
+            .sidebar .sidebar-icon {
+                margin: 0 auto;
+            }
+            .main-content {
+                margin-left: 5rem;
+            }
+        }
+        
+        /* Typography improvements */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+        
+        .font-semibold {
+            font-weight: 400;
+        }
+        
+        .font-bold {
+            font-weight: 500;
+        }
+        
+        /* No shadows - clean flat design */
+        .sidebar {
+            box-shadow: none;
+        }
+        
+        .main-content {
+            box-shadow: none;
+        }
+        
+        .card-shadow {
+            box-shadow: none;
+        }
+        
+        .card-shadow:hover {
+            box-shadow: none;
+        }
+        
+        .header-shadow {
+            box-shadow: none;
+        }
+        
+        .stat-card-shadow {
+            box-shadow: none;
+        }
+        
+        .stat-card-shadow:hover {
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .action-card-shadow {
+            box-shadow: none;
+        }
+        
+        .action-card-shadow:hover {
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .table-shadow {
+            box-shadow: none;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
     <!-- Sidebar -->
-    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full bg-white shadow-lg z-50 w-64">
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full bg-white z-50 w-64">
         <!-- Logo -->
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center space-x-3">
@@ -111,17 +218,24 @@
     <!-- Main Content -->
     <div class="main-content ml-64 min-h-screen">
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-gray-200">
-            <div class="flex items-center justify-between px-6 py-4">
-                <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">@yield('page-title', 'Dashboard')</h1>
-                    <p class="text-gray-600">@yield('page-description', 'Gérez vos boutiques et votre plateforme')</p>
+        <header class="bg-white border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 sm:px-6 py-4">
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuButton" class="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                
+                <div class="flex-1">
+                    <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">@yield('page-title', 'Dashboard')</h1>
+                    <p class="text-sm sm:text-base text-gray-600">@yield('page-description', 'Gérez vos boutiques et votre plateforme')</p>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 sm:space-x-4">
                     <!-- Notifications -->
                     <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M9 11h.01M9 8h.01M9 5h.01M9 2h.01M15 2h.01M15 5h.01M15 8h.01M15 11h.01M15 14h.01M15 17h.01M15 20h.01"></path>
                         </svg>
@@ -129,11 +243,11 @@
 
                     <!-- User Menu -->
                     <div class="relative">
-                        <button id="userMenuButton" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <button id="userMenuButton" class="flex items-center space-x-2 sm:space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                             <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                                 <span class="text-white font-medium text-sm">{{ substr(auth()->user()->name, 0, 1) }}</span>
                             </div>
-                            <span class="text-gray-700 font-medium">{{ auth()->user()->name }}</span>
+                            <span class="hidden sm:block text-gray-700 font-medium">{{ auth()->user()->name }}</span>
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -144,7 +258,7 @@
                             <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Mon Profil</a>
                             <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Paramètres</a>
                             <hr class="my-2">
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form method="POST" action="{{ route('admin.logout') }}">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
                                     Se déconnecter
@@ -157,25 +271,25 @@
         </header>
 
         <!-- Page Content -->
-        <main class="p-6">
+        <main class="p-4 sm:p-6">
             @if(session('success'))
-                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-center">
-                        <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-green-800">{{ session('success') }}</span>
+                        <span class="text-green-800 text-sm sm:text-base">{{ session('success') }}</span>
                     </div>
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
                     <div class="flex items-center">
-                        <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-red-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span class="text-red-800">{{ session('error') }}</span>
+                        <span class="text-red-800 text-sm sm:text-base">{{ session('error') }}</span>
                     </div>
                 </div>
             @endif
@@ -189,6 +303,12 @@
         document.getElementById('toggleSidebar').addEventListener('click', function() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
+        });
+
+        // Mobile Menu Toggle
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
         });
 
         // User Menu Toggle
@@ -205,6 +325,111 @@
             if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
                 userMenu.classList.add('hidden');
             }
+        });
+
+        // Close mobile menu on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Session management and CSRF token refresh
+        let sessionWarningShown = false;
+        let sessionTimeout = null;
+        
+        // Function to refresh CSRF token
+        function refreshCSRFToken() {
+            fetch('/refresh-csrf-token', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    // Update all CSRF tokens in forms
+                    document.querySelectorAll('input[name="_token"]').forEach(input => {
+                        input.value = data.token;
+                    });
+                    
+                    // Update meta tag
+                    const metaToken = document.querySelector('meta[name="csrf-token"]');
+                    if (metaToken) {
+                        metaToken.setAttribute('content', data.token);
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('CSRF token refresh failed:', error);
+            });
+        }
+        
+        // Function to check session status
+        function checkSessionStatus() {
+            fetch('/check-session', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Session expired
+                    showSessionExpiredModal();
+                } else if (response.status === 200) {
+                    // Session is valid, reset warning
+                    sessionWarningShown = false;
+                    if (sessionTimeout) {
+                        clearTimeout(sessionTimeout);
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('Session check failed:', error);
+            });
+        }
+        
+        // Function to show session expired modal
+        function showSessionExpiredModal() {
+            if (sessionWarningShown) return;
+            sessionWarningShown = true;
+            
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Session Expirée</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6">Votre session a expiré. Veuillez vous reconnecter pour continuer.</p>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="this.closest('.fixed').remove(); window.location.href='/login';" 
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            Se reconnecter
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // Refresh CSRF token every 30 minutes
+        setInterval(refreshCSRFToken, 30 * 60 * 1000);
+        
+        // Check session status every 5 minutes
+        setInterval(checkSessionStatus, 5 * 60 * 1000);
+        
+        // Refresh CSRF token on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshCSRFToken();
         });
     </script>
 </body>

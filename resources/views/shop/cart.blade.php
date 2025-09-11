@@ -26,10 +26,10 @@
                         </ul>
                     </div>
                     <div class="mt-4 flex space-x-4">
-                        <a href="{{ route('login') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
+                        <a href="{{ route('shop.login.slug', ['shop' => request()->route('shop')]) }}" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
                             Se connecter
                         </a>
-                        <a href="{{ route('register') }}" class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-50 transition-colors">
+                        <a href="{{ route('shop.register.slug', ['shop' => request()->route('shop')]) }}" class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-50 transition-colors">
                             Créer un compte
                         </a>
                     </div>
@@ -149,11 +149,11 @@
                                 </div>
                             </div>
                             
-                            <a href="{{ route('login') }}" class="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors text-center block">
+                            <a href="{{ route('shop.login.slug', ['shop' => request()->route('shop')]) }}" class="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors text-center block">
                                 Se connecter pour commander
                             </a>
                             
-                            <a href="{{ route('register') }}" class="w-full bg-white text-black border border-gray-300 py-3 px-6 rounded-lg font-medium hover:bg-gray-50 transition-colors text-center block">
+                            <a href="{{ route('shop.register.slug', ['shop' => request()->route('shop')]) }}" class="w-full bg-white text-black border border-gray-300 py-3 px-6 rounded-lg font-medium hover:bg-gray-50 transition-colors text-center block">
                                 Créer un compte
                             </a>
                         </div>

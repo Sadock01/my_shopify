@@ -119,12 +119,12 @@
                     <!-- Products Grid -->
                     <div id="products-container" class="products-grid">
                         @forelse($products as $product)
-                            <div class="product-card group bg-white border border-gray-100 rounded-2xl overflow-hidden hover-lift" 
+                            <div class="product-card group bg-white border border-gray-100 rounded-lg overflow-hidden hover-lift shadow-sm hover:shadow-md" 
                                  data-category="{{ $product->category_id }}" 
                                  data-price="{{ $product->price }}"
                                  data-name="{{ strtolower($product->name) }}">
                                 <div class="relative overflow-hidden">
-                                    <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700">
+                                    <img src="{{ $product->image }}" alt="{{ $product->name }}" class="product-image w-full group-hover:scale-105 transition-transform duration-700">
                                     
                                     <!-- Quick Add Button -->
                                     <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
@@ -154,25 +154,25 @@
                                     </div>
                                 </div>
                                 
-                                <div class="p-6">
-                                    <div class="mb-3">
+                                <div class="p-3">
+                                    <div class="mb-2">
                                         <span class="text-xs text-gray-500 uppercase tracking-wide">{{ $product->category->name ?? 'Catégorie' }}</span>
                                     </div>
                                     
-                                    <h3 class="text-xl font-medium text-black mb-3 group-hover:text-gray-600 transition-colors">{{ $product->name }}</h3>
-                                    <p class="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">{{ Str::limit($product->description, 80) }}</p>
+                                    <h3 class="product-title font-medium text-black group-hover:text-gray-600 transition-colors">{{ $product->name }}</h3>
+                                    <p class="product-description text-gray-600 line-clamp-2 leading-relaxed">{{ Str::limit($product->description, 60) }}</p>
                                     
                                     <div class="flex justify-between items-end">
                                         <div class="flex flex-col">
                                             @if($product->original_price && $product->original_price > $product->price)
-                                                <span class="text-gray-400 line-through text-sm mb-1">{{ number_format($product->original_price, 2) }}€</span>
+                                                <span class="text-gray-400 line-through text-xs mb-1">{{ number_format($product->original_price, 2) }}€</span>
                                             @endif
-                                            <span class="text-lg font-medium text-black">{{ number_format($product->price, 2) }}€</span>
+                                            <span class="product-price font-medium text-black">{{ number_format($product->price, 2) }}€</span>
                                         </div>
                                         
                                         <a href="{{ $shop->isOnCustomDomain() ? route('shop.product', $product->id) : route('shop.product.slug', [$shop->slug, $product->id]) }}" 
-                                           class="text-black hover:text-gray-600 text-sm font-medium group-hover:underline transition-colors duration-200 whitespace-nowrap">
-                                            Voir détails →
+                                           class="product-actions text-black hover:text-gray-600 font-medium group-hover:underline transition-colors duration-200 whitespace-nowrap">
+                                            Voir →
                                         </a>
                                     </div>
                                 </div>

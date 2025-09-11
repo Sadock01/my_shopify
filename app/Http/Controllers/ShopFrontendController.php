@@ -40,6 +40,9 @@ class ShopFrontendController extends Controller
             ->take(4)
             ->get();
 
+        // Charger les témoignages et moyens de paiement
+        $shop->load(['testimonials', 'paymentMethods']);
+
         return view('shop.home', compact('shop', 'featuredProducts', 'newProducts'));
     }
 

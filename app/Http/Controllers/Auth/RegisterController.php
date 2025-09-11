@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Shop;
 
 class RegisterController extends Controller
 {
@@ -26,6 +27,15 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return redirect('/demo')->with('success', 'Compte créé avec succès ! Bienvenue !');
+        // Rediriger vers la première boutique active pour faire des commandes
+        $activeShop = Shop::active()->first();
+        
+        if ($activeShop) {
+            return redirect()->route('shop.home.slug', ['shop' => $activeShop->slug])
+                ->with('success', 'Compte créé avec succès ! Bienvenue ! Vous pouvez maintenant faire vos commandes.');
+        }
+        
+        // Si aucune boutique active, rediriger vers la page d'accueil
+        return redirect('/')->with('success', 'Compte créé avec succès ! Bienvenue !');
     }
 }

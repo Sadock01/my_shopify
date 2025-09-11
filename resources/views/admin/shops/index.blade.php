@@ -22,7 +22,7 @@
                         Boutique
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Template
+                        URL
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Produits
@@ -61,9 +61,20 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {{ $shop->template ?? 'Default' }}
-                        </span>
+                        <div class="flex flex-col space-y-1">
+                            <a href="{{ route('shop.home.slug', ['shop' => $shop->slug]) }}" 
+                               target="_blank"
+                               class="text-blue-600 hover:text-blue-800 text-xs font-mono bg-blue-50 px-2 py-1 rounded">
+                                {{ url('/shop/' . $shop->slug) }}
+                            </a>
+                            @if($shop->domain)
+                                <a href="http://{{ $shop->domain }}" 
+                                   target="_blank"
+                                   class="text-green-600 hover:text-green-800 text-xs font-mono bg-green-50 px-2 py-1 rounded">
+                                    {{ $shop->domain }}
+                                </a>
+                            @endif
+                        </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {{ $shop->products_count ?? 0 }}
@@ -84,6 +95,12 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
+                            <button onclick="toggleShopStatus({{ $shop->id }})" 
+                                    class="text-purple-600 hover:text-purple-900 toggle-status-btn"
+                                    data-shop-id="{{ $shop->id }}"
+                                    data-current-status="{{ $shop->is_active ? 'active' : 'inactive' }}">
+                                {{ $shop->is_active ? 'Désactiver' : 'Activer' }}
+                            </button>
                             <a href="{{ route('admin.shops.edit', $shop) }}" 
                                class="text-blue-600 hover:text-blue-900">Modifier</a>
                             <a href="{{ route('admin.shops.manage', $shop) }}" 
@@ -114,4 +131,45 @@
         </table>
     </div>
 </div>
+
+<script>
+function toggleShopStatus(shopId) {
+    if (confirm('Êtes-vous sûr de vouloir changer le statut de cette boutique ?')) {
+        fetch(`/admin/shops/${shopId}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mettre à jour le statut dans le tableau
+                const statusCell = document.querySelector(`[data-shop-id="${shopId}"]`).closest('tr').querySelector('td:nth-child(5)`);
+                const button = document.querySelector(`[data-shop-id="${shopId}"]`);
+                
+                if (data.is_active) {
+                    statusCell.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>';
+                    button.textContent = 'Désactiver';
+                    button.setAttribute('data-current-status', 'active');
+                } else {
+                    statusCell.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactive</span>';
+                    button.textContent = 'Activer';
+                    button.setAttribute('data-current-status', 'inactive');
+                }
+                
+                // Afficher un message de succès
+                alert(data.message);
+            } else {
+                alert('Erreur lors de la modification du statut');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de la modification du statut');
+        });
+    }
+}
+</script>
 @endsection

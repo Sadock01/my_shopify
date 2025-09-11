@@ -47,3 +47,4 @@ class AdminSeeder extends Seeder
         $this->command->info('Email: superadmin@myshopify.com | Mot de passe: superadmin789');
     }
 }
+

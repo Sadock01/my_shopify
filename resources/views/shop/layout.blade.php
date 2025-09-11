@@ -15,7 +15,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,8 +31,11 @@
         }
         
         body {
-            font-family: '{{ $shop->theme_settings['font_family'] ?? 'Inter' }}', sans-serif;
+            font-family: 'Montserrat', '{{ $shop->theme_settings['font_family'] ?? 'Inter' }}', sans-serif;
             color: var(--text-color);
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
         }
         
         .btn-primary {
@@ -99,35 +102,140 @@
             overflow: hidden;
         }
         
-        /* Products Grid */
+        /* Montserrat typography enhancements */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+            line-height: 1.3;
+        }
+        
+        .font-light {
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+        
+        .font-medium {
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+        
+        .font-semibold {
+            font-weight: 500;
+            letter-spacing: 0.005em;
+        }
+        
+        /* Soft button styles */
+        .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+        
+        /* Navigation improvements */
+        nav a {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+        
+        /* Product card text */
+        .product-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+        
+        .product-description {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            line-height: 1.5;
+        }
+        
+        /* Products Grid - 1 produit par ligne ≤600px, 4 max >600px */
         .products-grid {
             display: grid;
-            gap: 2rem;
-            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+            grid-template-columns: 1fr;
         }
         
-        @media (min-width: 640px) {
+        @media (min-width: 600px) {
             .products-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                max-width: 100%;
             }
         }
         
-        @media (min-width: 1024px) {
-            .products-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
-        @media (min-width: 1280px) {
+        /* Limiter à 4 colonnes maximum */
+        @media (min-width: 1200px) {
             .products-grid {
                 grid-template-columns: repeat(4, 1fr);
+                max-width: 1200px;
+                margin: 0 auto;
             }
         }
         
-        @media (min-width: 1536px) {
-            .products-grid {
-                grid-template-columns: repeat(5, 1fr);
+        /* Product card optimizations for responsive grid */
+        .product-card {
+            transform: scale(1);
+            transition: all 0.3s ease;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card:hover {
+            transform: scale(1.02);
+            z-index: 10;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-card .product-image {
+            height: 180px;
+            object-fit: cover;
+            width: 100%;
+        }
+        
+        /* Mobile: image plus grande pour 1 colonne */
+        @media (max-width: 600px) {
+            .product-card {
+                min-height: 400px;
             }
+            
+            .product-card .product-image {
+                height: 250px;
+            }
+        }
+        
+        /* Desktop: image optimisée pour 4 colonnes */
+        @media (min-width: 1200px) {
+            .product-card .product-image {
+                height: 160px;
+            }
+        }
+        
+        .product-card .product-title {
+            font-size: 1rem;
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .product-card .product-description {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            flex-grow: 1;
+        }
+        
+        .product-card .product-price {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .product-card .product-actions {
+            font-size: 0.85rem;
         }
     </style>
     
@@ -204,7 +312,7 @@
                                         Connecté en tant que<br>
                                         <span class="font-medium">{{ Auth::user()->email }}</span>
                                     </div>
-                                    <form method="POST" action="{{ route('logout') }}" class="block">
+                                    <form method="POST" action="{{ route('shop.logout.slug', ['shop' => $shop->slug]) }}" class="block">
                                         @csrf
                                         <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
                                             Se déconnecter
@@ -215,10 +323,10 @@
                         </div>
                     @else
                         <div class="flex items-center space-x-3">
-                            <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
+                            <a href="{{ route('shop.login.slug', ['shop' => $shop->slug]) }}" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
                                 Connexion
                             </a>
-                            <a href="{{ route('register') }}" class="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors duration-200">
+                            <a href="{{ route('shop.register.slug', ['shop' => $shop->slug]) }}" class="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors duration-200">
                                 Inscription
                             </a>
                         </div>
@@ -237,6 +345,7 @@
 
     <!-- Main Content -->
     <main>
+        @include('components.connected-shops')
         @yield('content')
     </main>
 
@@ -354,6 +463,98 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateCartCount();
         });
+
+        // Session management for shop pages
+        @auth
+        let sessionWarningShown = false;
+        
+        // Function to refresh CSRF token
+        function refreshCSRFToken() {
+            fetch('/refresh-csrf-token', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    // Update all CSRF tokens in forms
+                    document.querySelectorAll('input[name="_token"]').forEach(input => {
+                        input.value = data.token;
+                    });
+                    
+                    // Update meta tag
+                    const metaToken = document.querySelector('meta[name="csrf-token"]');
+                    if (metaToken) {
+                        metaToken.setAttribute('content', data.token);
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('CSRF token refresh failed:', error);
+            });
+        }
+        
+        // Function to check session status
+        function checkSessionStatus() {
+            fetch('/check-session', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Session expired
+                    showSessionExpiredModal();
+                }
+            })
+            .catch(error => {
+                console.log('Session check failed:', error);
+            });
+        }
+        
+        // Function to show session expired modal
+        function showSessionExpiredModal() {
+            if (sessionWarningShown) return;
+            sessionWarningShown = true;
+            
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Session Expirée</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6">Votre session a expiré. Veuillez vous reconnecter pour continuer vos achats.</p>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="this.closest('.fixed').remove(); window.location.href='/login';" 
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            Se reconnecter
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // Refresh CSRF token every 30 minutes
+        setInterval(refreshCSRFToken, 30 * 60 * 1000);
+        
+        // Check session status every 5 minutes
+        setInterval(checkSessionStatus, 5 * 60 * 1000);
+        
+        // Refresh CSRF token on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshCSRFToken();
+        });
+        @endauth
     </script>
     
     @stack('scripts')

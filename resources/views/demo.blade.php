@@ -6,7 +6,7 @@
     <title>MyShopify - Démonstration</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50">
+<body class="">
     <div class="min-h-screen">
         <!-- Header -->
         <header class="bg-white shadow-sm">
