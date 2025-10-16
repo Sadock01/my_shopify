@@ -51,7 +51,6 @@ class ProductController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        
         // Upload de l'image principale
         $destinationPath = public_path('documents/shops/' . $shop->slug . '/products');
         if (!file_exists($destinationPath)) {
