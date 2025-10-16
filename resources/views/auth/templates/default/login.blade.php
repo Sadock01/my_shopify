@@ -113,7 +113,7 @@
     @include('components.session-notifications')
 
     <!-- Notifications Service -->
-    <script src="{{ asset('js/notifications.js') }}"></script>
+    @vite('resources/js/notifications.js')
 
     <script>
         function togglePassword() {

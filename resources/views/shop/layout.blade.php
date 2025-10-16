@@ -665,7 +665,7 @@
     </script>
     
     <!-- Notifications Service -->
-    <script src="{{ asset('js/notifications.js') }}"></script>
+    @vite('resources/js/notifications.js')
     
     @stack('scripts')
 </body>

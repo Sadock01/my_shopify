@@ -164,7 +164,7 @@
             
             html += `
                 <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                    <img src="/storage/${product.image}" alt="${product.name}" class="w-20 h-20 object-cover rounded-md">
+                    <img src="/documents/${product.image}" alt="${product.name}" class="w-20 h-20 object-cover rounded-md">
                     <div class="flex-1">
                         <h3 class="font-semibold text-gray-900">${product.name}</h3>
                         <p class="text-sm text-gray-600">${product.category ? product.category.name : 'Catégorie'}</p>
