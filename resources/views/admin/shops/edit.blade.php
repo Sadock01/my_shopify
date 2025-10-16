@@ -73,7 +73,7 @@
                     <label for="logo" class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
                     @if($shop->logo)
                         <div class="mb-2">
-                            <img src="{{ Storage::url($shop->logo) }}" alt="Logo actuel" class="w-20 h-20 object-cover rounded">
+                            <img src="/documents/{{ $shop->logo }}" alt="Logo actuel" class="w-20 h-20 object-cover rounded">
                         </div>
                     @endif
                     <input type="file" name="logo" id="logo" accept="image/*"
@@ -84,7 +84,7 @@
                     <label for="favicon" class="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
                     @if($shop->favicon)
                         <div class="mb-2">
-                            <img src="{{ Storage::url($shop->favicon) }}" alt="Favicon actuel" class="w-8 h-8 object-cover rounded">
+                            <img src="/documents/{{ $shop->favicon }}" alt="Favicon actuel" class="w-8 h-8 object-cover rounded">
                             <p class="text-xs text-gray-500 mt-1">Favicon actuel (16x16 ou 32x32 px recommandé)</p>
                         </div>
                     @endif
@@ -97,7 +97,7 @@
                     <label for="banner" class="block text-sm font-medium text-gray-700 mb-2">Bannière</label>
                     @if($shop->banner_image)
                         <div class="mb-2">
-                            <img src="{{ Storage::url($shop->banner_image) }}" alt="Bannière actuelle" class="w-full h-32 object-cover rounded">
+                            <img src="/documents/{{ $shop->banner_image }}" alt="Bannière actuelle" class="w-full h-32 object-cover rounded">
                         </div>
                     @endif
                     <input type="file" name="banner" id="banner" accept="image/*"

@@ -225,7 +225,7 @@
                 @foreach($shop->products->take(6) as $product)
                 <div class="border border-gray-200 rounded-lg overflow-hidden">
                     @if($product->image)
-                        <img class="w-full h-48 object-cover" src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}">
+                        <img class="w-full h-48 object-cover" src="/documents/{{ $product->image }}" alt="{{ $product->name }}">
                     @endif
                     <div class="p-4">
                         <h3 class="font-medium text-gray-900 mb-2">{{ $product->name }}</h3>

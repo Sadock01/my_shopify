@@ -11,9 +11,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ $shop->favicon ? Storage::url($shop->favicon) : ($shop->logo ? Storage::url($shop->logo) : '/favicon.ico') }}">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ $shop->favicon ? Storage::url($shop->favicon) : ($shop->logo ? Storage::url($shop->logo) : '/favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ $shop->favicon ? Storage::url($shop->favicon) : ($shop->logo ? Storage::url($shop->logo) : '/favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ $shop->favicon ? '/documents/' . $shop->favicon : ($shop->logo ? '/documents/' . $shop->logo : '/favicon.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ $shop->favicon ? '/documents/' . $shop->favicon : ($shop->logo ? '/documents/' . $shop->logo : '/favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ $shop->favicon ? '/documents/' . $shop->favicon : ($shop->logo ? '/documents/' . $shop->logo : '/favicon.ico') }}">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -255,7 +255,7 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     @if($shop->logo)
-                        <img src="{{ Storage::url($shop->logo) }}" alt="{{ $shop->name }}" class="h-8 w-auto">
+                        <img src="/documents/{{ $shop->logo }}" alt="{{ $shop->name }}" class="h-8 w-auto">
                     @else
                         <h1 class="text-xl font-light tracking-wide text-black">{{ $shop->name }}</h1>
                     @endif

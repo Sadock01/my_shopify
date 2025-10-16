@@ -167,7 +167,7 @@
                     <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             @if($shop->logo)
-                                <img src="{{ Storage::url($shop->logo) }}" 
+                                <img src="/documents/{{ $shop->logo }}" 
                                      alt="Logo {{ $shop->name }}" 
                                      class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover mr-2 sm:mr-3 flex-shrink-0">
                             @else

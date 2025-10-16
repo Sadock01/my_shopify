@@ -63,7 +63,7 @@
                     <label for="icon" class="block text-sm font-medium text-gray-700 mb-2">Icône</label>
                     @if($paymentMethod->icon)
                         <div class="mb-2">
-                            <img src="{{ Storage::url($paymentMethod->icon) }}" alt="Icône actuelle" class="w-20 h-20 object-cover rounded">
+                            <img src="/documents/{{ $paymentMethod->icon }}" alt="Icône actuelle" class="w-20 h-20 object-cover rounded">
                         </div>
                     @endif
                     <input type="file" name="icon" id="icon" accept="image/*"

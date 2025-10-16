@@ -44,7 +44,7 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($category->image)
-                                <img src="{{ Storage::url($category->image) }}" alt="{{ $category->name }}" class="w-10 h-10 object-cover rounded">
+                                <img src="/documents/{{ $category->image }}" alt="{{ $category->name }}" class="w-10 h-10 object-cover rounded">
                             @else
                                 <div class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
                                     <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
