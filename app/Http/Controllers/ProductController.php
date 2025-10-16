@@ -46,10 +46,25 @@ class ProductController extends Controller
             'image' => 'required|string',
             'images' => 'nullable|array',
             'sizes' => 'nullable|array',
+            'sizes.*' => 'nullable|string',
             'colors' => 'nullable|array',
+            'colors.*' => 'nullable|string',
             'is_featured' => 'boolean',
             'stock' => 'integer|min:0',
         ]);
+
+        // Nettoyer les arrays de tailles et couleurs (supprimer les valeurs vides)
+        if (isset($validated['sizes'])) {
+            $validated['sizes'] = array_filter($validated['sizes'], function($size) {
+                return !empty(trim($size));
+            });
+        }
+        
+        if (isset($validated['colors'])) {
+            $validated['colors'] = array_filter($validated['colors'], function($color) {
+                return !empty(trim($color));
+            });
+        }
 
         $product = Product::create($validated);
 
@@ -94,10 +109,25 @@ class ProductController extends Controller
             'image' => 'sometimes|string',
             'images' => 'nullable|array',
             'sizes' => 'nullable|array',
+            'sizes.*' => 'nullable|string',
             'colors' => 'nullable|array',
+            'colors.*' => 'nullable|string',
             'is_featured' => 'boolean',
             'stock' => 'integer|min:0',
         ]);
+
+        // Nettoyer les arrays de tailles et couleurs (supprimer les valeurs vides)
+        if (isset($validated['sizes'])) {
+            $validated['sizes'] = array_filter($validated['sizes'], function($size) {
+                return !empty(trim($size));
+            });
+        }
+        
+        if (isset($validated['colors'])) {
+            $validated['colors'] = array_filter($validated['colors'], function($color) {
+                return !empty(trim($color));
+            });
+        }
 
         $product->update($validated);
 

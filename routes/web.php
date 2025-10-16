@@ -70,6 +70,10 @@ Route::middleware(['auth', 'admin', 'refresh.session'])->prefix('admin')->name('
     
     // Gestion des moyens de paiement
     Route::resource('shops.payment-methods', App\Http\Controllers\Admin\PaymentMethodController::class);
+    
+    // Gestion des informations de paiement
+    Route::get('/shops/{shop}/payment-info', [App\Http\Controllers\Admin\PaymentInfoController::class, 'index'])->name('payment-info.index');
+    Route::put('/shops/{shop}/payment-info', [App\Http\Controllers\Admin\PaymentInfoController::class, 'update'])->name('payment-info.update');
 
     // Gestion des catégories
     Route::resource('shops.categories', App\Http\Controllers\Admin\CategoryController::class);
@@ -118,6 +122,15 @@ Route::middleware(['detect.shop'])->group(function () {
         Route::post('/checkout', [ShopFrontendController::class, 'checkout'])->name('shop.checkout');
         Route::get('/payment-info', [ShopFrontendController::class, 'paymentInfo'])->name('shop.payment-info');
     });
+    
+    // Route pour mettre à jour le compteur du panier
+    Route::get('/cart-count', [ShopFrontendController::class, 'getCartCount'])->name('shop.cart-count');
+    
+    // Route pour synchroniser le panier localStorage vers la session
+    Route::post('/cart-sync', [ShopFrontendController::class, 'syncCart'])->name('shop.cart-sync');
+    
+    // Route pour récupérer les informations des produits du panier
+    Route::post('/cart-products', [ShopFrontendController::class, 'getCartProducts'])->name('shop.cart-products');
 });
 
 // ========================================
@@ -147,11 +160,23 @@ Route::prefix('shop/{shop:slug}')->group(function () {
         Route::post('/checkout', [ShopFrontendController::class, 'checkout'])->name('shop.checkout.slug');
         Route::get('/payment-info', [ShopFrontendController::class, 'paymentInfo'])->name('shop.payment-info.slug');
     });
+    
+    // Route pour mettre à jour le compteur du panier
+    Route::get('/cart-count', [ShopFrontendController::class, 'getCartCount'])->name('shop.cart-count.slug');
+    
+    // Route pour synchroniser le panier localStorage vers la session
+    Route::post('/cart-sync', [ShopFrontendController::class, 'syncCart'])->name('shop.cart-sync.slug');
+    
+    // Route pour récupérer les informations des produits du panier
+    Route::post('/cart-products', [ShopFrontendController::class, 'getCartProducts'])->name('shop.cart-products.slug');
 });
 
 // ========================================
 // ROUTES UTILITAIRES
 // ========================================
+
+// Route pour vider le panier
+Route::post('/clear-cart', [App\Http\Controllers\Auth\LoginController::class, 'clearCart'])->name('clear-cart');
 
 // Routes pour la gestion des sessions
 Route::get('/refresh-csrf-token', function () {

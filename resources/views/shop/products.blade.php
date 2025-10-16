@@ -124,11 +124,16 @@
                                  data-price="{{ $product->price }}"
                                  data-name="{{ strtolower($product->name) }}">
                                 <div class="relative overflow-hidden">
-                                    <img src="{{ $product->image }}" alt="{{ $product->name }}" class="product-image w-full group-hover:scale-105 transition-transform duration-700">
+                                    <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="product-image w-full group-hover:scale-105 transition-transform duration-700">
                                     
                                     <!-- Quick Add Button -->
                                     <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                        <button onclick="addToCart({{ $product->id }})" class="bg-black text-white p-3 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300 hover:scale-110">
+                                        <button onclick="addToCart({{ $product->id }}, 1, {
+                                            name: '{{ addslashes($product->name) }}',
+                                            price: {{ $product->price }},
+                                            image: '{{ $product->image }}',
+                                            category: '{{ addslashes($product->category->name ?? 'Catégorie') }}'
+                                        })" class="bg-black text-white p-3 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300 hover:scale-110">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                             </svg>

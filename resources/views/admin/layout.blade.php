@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js pour les notifications -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body { 
             font-family: 'Montserrat', sans-serif;
@@ -121,6 +124,89 @@
         .table-shadow {
             box-shadow: none;
         }
+        
+        /* Dark mode styles */
+        .dark {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+        
+        .dark .sidebar {
+            background-color: #111827;
+            border-color: #374151;
+        }
+        
+        .dark .sidebar .sidebar-text {
+            color: #f9fafb;
+        }
+        
+        .dark .sidebar .sidebar-item {
+            color: #d1d5db;
+        }
+        
+        .dark .sidebar .sidebar-item:hover {
+            background-color: #374151;
+            color: #60a5fa;
+        }
+        
+        .dark .sidebar .sidebar-item.bg-blue-50 {
+            background-color: #1e3a8a;
+            color: #60a5fa;
+        }
+        
+        .dark header {
+            background-color: #111827;
+            border-color: #374151;
+        }
+        
+        .dark header h1 {
+            color: #f9fafb;
+        }
+        
+        .dark header p {
+            color: #d1d5db;
+        }
+        
+        .dark main {
+            background-color: #1f2937;
+        }
+        
+        .dark .bg-white {
+            background-color: #111827;
+            border-color: #374151;
+        }
+        
+        .dark .text-gray-900 {
+            color: #f9fafb;
+        }
+        
+        .dark .text-gray-700 {
+            color: #d1d5db;
+        }
+        
+        .dark .text-gray-600 {
+            color: #9ca3af;
+        }
+        
+        .dark .text-gray-500 {
+            color: #6b7280;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #374151;
+        }
+        
+        .dark .hover\:bg-gray-100:hover {
+            background-color: #374151;
+        }
+        
+        .dark .hover\:text-gray-900:hover {
+            color: #f9fafb;
+        }
+        
+        .dark .hover\:text-gray-600:hover {
+            color: #d1d5db;
+        }
     </style>
 </head>
 <body>
@@ -169,13 +255,6 @@
                     <span class="sidebar-text font-medium">Templates</span>
                 </a>
 
-                <!-- Produits -->
-                <a href="#" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
-                    <svg class="sidebar-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    <span class="sidebar-text font-medium">Produits</span>
-                </a>
 
                 <!-- Commandes -->
                 <a href="#" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
@@ -194,14 +273,6 @@
                     <span class="sidebar-text font-medium">Utilisateurs</span>
                 </a>
 
-                <!-- Paramètres -->
-                <a href="#" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
-                    <svg class="sidebar-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span class="sidebar-text font-medium">Paramètres</span>
-                </a>
             </div>
         </nav>
 
@@ -233,6 +304,18 @@
                 </div>
                 
                 <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button id="darkModeToggle" class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                        <!-- Sun icon (visible in dark mode) -->
+                        <svg id="sunIcon" class="w-5 h-5 sm:w-6 sm:h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <!-- Moon icon (visible in light mode) -->
+                        <svg id="moonIcon" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+
                     <!-- Notifications -->
                     <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,31 +355,15 @@
 
         <!-- Page Content -->
         <main class="p-4 sm:p-6">
-            @if(session('success'))
-                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-green-800 text-sm sm:text-base">{{ session('success') }}</span>
-                    </div>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-red-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-red-800 text-sm sm:text-base">{{ session('error') }}</span>
-                    </div>
-                </div>
-            @endif
-
             @yield('content')
         </main>
     </div>
+
+    <!-- Notifications Container -->
+    <div id="notifications-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Session Notifications -->
+    @include('components.session-notifications')
 
     <script>
         // Toggle Sidebar
@@ -430,7 +497,52 @@
         // Refresh CSRF token on page load
         document.addEventListener('DOMContentLoaded', function() {
             refreshCSRFToken();
+            initializeDarkMode();
         });
+        
+        // Dark Mode Functionality
+        function initializeDarkMode() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            const body = document.body;
+            
+            // Check for saved dark mode preference or default to light mode
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            
+            // Apply initial theme
+            if (isDarkMode) {
+                body.classList.add('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                body.classList.remove('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+            
+            // Toggle dark mode
+            darkModeToggle.addEventListener('click', function() {
+                const isCurrentlyDark = body.classList.contains('dark');
+                
+                if (isCurrentlyDark) {
+                    // Switch to light mode
+                    body.classList.remove('dark');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                    localStorage.setItem('darkMode', 'false');
+                } else {
+                    // Switch to dark mode
+                    body.classList.add('dark');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                    localStorage.setItem('darkMode', 'true');
+                }
+            });
+        }
     </script>
+    
+    <!-- Notifications Service -->
+    <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 </html>

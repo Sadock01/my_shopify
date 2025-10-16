@@ -23,7 +23,10 @@ class ShopSeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::firstOrCreate(
+                ['slug' => $category['slug']], // Condition de recherche
+                $category // Données à créer si pas trouvé
+            );
         }
 
         // Créer des boutiques
@@ -141,7 +144,10 @@ class ShopSeeder extends Seeder
         ];
 
         foreach ($shops as $shop) {
-            Shop::create($shop);
+            Shop::firstOrCreate(
+                ['slug' => $shop['slug']], // Condition de recherche
+                $shop // Données à créer si pas trouvé
+            );
         }
     }
 }

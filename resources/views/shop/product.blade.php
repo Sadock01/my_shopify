@@ -50,7 +50,7 @@
                 <div class="space-y-4">
                     <!-- Main Image -->
                     <div class="relative">
-                        <img id="main-image" src="{{ $product->image }}" alt="{{ $product->name }}" 
+                        <img id="main-image" src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" 
                              class="w-full h-96 lg:h-[500px] object-cover rounded-2xl">
                         
                         <!-- Favorite Button -->
@@ -75,13 +75,13 @@
                     <div class="flex space-x-4 overflow-x-auto">
                         <button onclick="changeMainImage('{{ $product->image }}')" 
                                 class="thumbnail-btn flex-shrink-0 w-20 h-20 border-2 border-black rounded-lg overflow-hidden">
-                            <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                            <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                         </button>
                         @foreach($product->images as $image)
                             @if($image !== $product->image)
                             <button onclick="changeMainImage('{{ $image }}')" 
                                     class="thumbnail-btn flex-shrink-0 w-20 h-20 border-2 border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors duration-200">
-                                <img src="{{ $image }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                <img src="{{ Storage::url($image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                             </button>
                             @endif
                         @endforeach
@@ -161,7 +161,12 @@
 
                         <!-- Add to Cart Button -->
                         <div class="pt-4">
-                            <button onclick="addToCart({{ $product->id }}, document.getElementById('quantity').value)" 
+                            <button onclick="addToCart({{ $product->id }}, document.getElementById('quantity').value, {
+                                name: '{{ addslashes($product->name) }}',
+                                price: {{ $product->price }},
+                                image: '{{ $product->image }}',
+                                category: '{{ addslashes($product->category->name ?? 'Catégorie') }}'
+                            })" 
                                     class="w-full bg-black text-white py-4 px-8 rounded-2xl font-medium tracking-wide hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
                                 <div class="flex items-center justify-center space-x-3">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,11 +333,16 @@
                 @foreach($relatedProducts as $relatedProduct)
                     <div class="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover-lift">
                         <div class="relative overflow-hidden">
-                            <img src="{{ $relatedProduct->image }}" alt="{{ $relatedProduct->name }}" class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700">
+                            <img src="{{ Storage::url($relatedProduct->image) }}" alt="{{ $relatedProduct->name }}" class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700">
                             
                             <!-- Quick Add Button -->
                             <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                <button onclick="addToCart({{ $relatedProduct->id }})" class="bg-black text-white p-3 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300 hover:scale-110">
+                                <button onclick="addToCart({{ $relatedProduct->id }}, 1, {
+                                    name: '{{ addslashes($relatedProduct->name) }}',
+                                    price: {{ $relatedProduct->price }},
+                                    image: '{{ $relatedProduct->image }}',
+                                    category: '{{ addslashes($relatedProduct->category->name ?? 'Catégorie') }}'
+                                })" class="bg-black text-white p-3 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300 hover:scale-110">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>

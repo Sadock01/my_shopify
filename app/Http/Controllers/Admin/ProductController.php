@@ -44,9 +44,9 @@ class ProductController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'sizes' => 'nullable|array',
-            'sizes.*' => 'string',
+            'sizes.*' => 'nullable|string',
             'colors' => 'nullable|array',
-            'colors.*' => 'string',
+            'colors.*' => 'nullable|string',
             'is_featured' => 'boolean',
             'is_active' => 'boolean'
         ]);
@@ -69,6 +69,19 @@ class ProductController extends Controller
             }
         }
         $validated['images'] = $images;
+
+        // Nettoyer les arrays de tailles et couleurs (supprimer les valeurs vides)
+        if (isset($validated['sizes'])) {
+            $validated['sizes'] = array_filter($validated['sizes'], function($size) {
+                return !empty(trim($size));
+            });
+        }
+        
+        if (isset($validated['colors'])) {
+            $validated['colors'] = array_filter($validated['colors'], function($color) {
+                return !empty(trim($color));
+            });
+        }
 
         // Ajouter le shop_id
         $validated['shop_id'] = $shop->id;
@@ -103,9 +116,9 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'sizes' => 'nullable|array',
-            'sizes.*' => 'string',
+            'sizes.*' => 'nullable|string',
             'colors' => 'nullable|array',
-            'colors.*' => 'string',
+            'colors.*' => 'nullable|string',
             'is_featured' => 'boolean',
             'is_active' => 'boolean'
         ]);
@@ -139,6 +152,19 @@ class ProductController extends Controller
                 );
             }
             $validated['images'] = $images;
+        }
+
+        // Nettoyer les arrays de tailles et couleurs (supprimer les valeurs vides)
+        if (isset($validated['sizes'])) {
+            $validated['sizes'] = array_filter($validated['sizes'], function($size) {
+                return !empty(trim($size));
+            });
+        }
+        
+        if (isset($validated['colors'])) {
+            $validated['colors'] = array_filter($validated['colors'], function($color) {
+                return !empty(trim($color));
+            });
         }
 
         $product->update($validated);

@@ -8,9 +8,12 @@
     <!-- Meta tags -->
     <meta name="description" content="{{ $shop->description }}">
     <meta name="keywords" content="{{ $shop->name }}, boutique en ligne, e-commerce">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ $shop->logo ?? '/favicon.ico' }}">
+    <link rel="icon" type="image/x-icon" href="{{ $shop->favicon ? Storage::url($shop->favicon) : ($shop->logo ? Storage::url($shop->logo) : '/favicon.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ $shop->favicon ? Storage::url($shop->favicon) : ($shop->logo ? Storage::url($shop->logo) : '/favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ $shop->favicon ? Storage::url($shop->favicon) : ($shop->logo ? Storage::url($shop->logo) : '/favicon.ico') }}">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +22,9 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js pour les notifications -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Custom CSS -->
     <style>
@@ -249,7 +255,7 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     @if($shop->logo)
-                        <img src="{{ $shop->logo }}" alt="{{ $shop->name }}" class="h-8 w-auto">
+                        <img src="{{ Storage::url($shop->logo) }}" alt="{{ $shop->name }}" class="h-8 w-auto">
                     @else
                         <h1 class="text-xl font-light tracking-wide text-black">{{ $shop->name }}</h1>
                     @endif
@@ -266,12 +272,12 @@
                         Produits
                     </a>
                     @if($shop->about_text)
-                        <a href="#about" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-light">
+                        <a href="{{ $shop->isOnCustomDomain() ? route('shop.home') . '#about' : route('shop.home.slug', $shop->slug) . '#about' }}" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-light">
                             À propos
                         </a>
                     @endif
                     @if($shop->contact_email)
-                        <a href="#contact" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-light">
+                        <a href="{{ $shop->isOnCustomDomain() ? route('shop.home') . '#contact' : route('shop.home.slug', $shop->slug) . '#contact' }}" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-light">
                             Contact
                         </a>
                     @endif
@@ -285,11 +291,10 @@
                         <svg class="w-6 h-6 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        @if(session()->has('cart_' . $shop->id) && count(session('cart_' . $shop->id)) > 0)
-                            <span class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-medium">
-                                {{ count(session('cart_' . $shop->id)) }}
-                            </span>
-                        @endif
+                        <!-- Compteur de panier temporairement masqué -->
+                        <!-- <span id="cart-count-{{ $shop->id }}" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-medium" style="display: none;">
+                            0
+                        </span> -->
                     </a>
                     
                     <!-- Auth Status -->
@@ -348,6 +353,12 @@
         @include('components.connected-shops')
         @yield('content')
     </main>
+
+    <!-- Notifications Container -->
+    <div id="notifications-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Session Notifications -->
+    @include('components.session-notifications')
 
     <!-- Footer -->
     <footer class="bg-black text-white border-t border-gray-800">
@@ -428,15 +439,59 @@
 
     <!-- JavaScript -->
     <script>
+        // Vérifier si l'utilisateur a changé et vider le localStorage si nécessaire
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUserId = {{ Auth::id() ?? 'null' }};
+            const storedUserId = localStorage.getItem('current_user_id');
+            
+            if (storedUserId && storedUserId !== currentUserId.toString()) {
+                // L'utilisateur a changé, vider le panier localStorage
+                localStorage.removeItem('cart_{{ $shop->id }}');
+                localStorage.removeItem('current_user_id');
+                console.log('Utilisateur changé, panier localStorage vidé');
+                
+                // Forcer la mise à jour du compteur
+                const cartBadge = document.getElementById('cart-count-{{ $shop->id }}');
+                if (cartBadge) {
+                    cartBadge.textContent = '0';
+                    cartBadge.style.display = 'none';
+                }
+            }
+            
+            // Stocker l'ID de l'utilisateur actuel
+            if (currentUserId) {
+                localStorage.setItem('current_user_id', currentUserId.toString());
+            } else {
+                // Si pas d'utilisateur connecté, vider le localStorage
+                localStorage.removeItem('current_user_id');
+            }
+        });
+
         // Add to cart functionality
-        function addToCart(productId, quantity = 1) {
+        function addToCart(productId, quantity = 1, productInfo = null) {
+            // S'assurer que quantity est un nombre
+            quantity = parseInt(quantity) || 1;
+            
             const cart = JSON.parse(localStorage.getItem('cart_{{ $shop->id }}') || '[]');
             const existingItem = cart.find(item => item.product_id === productId);
             
             if (existingItem) {
-                existingItem.quantity += quantity;
+                existingItem.quantity = parseInt(existingItem.quantity) + quantity;
             } else {
-                cart.push({ product_id: productId, quantity: quantity });
+                // Si on a les informations du produit, les stocker directement
+                if (productInfo) {
+                    cart.push({
+                        product_id: productId,
+                        quantity: quantity,
+                        name: productInfo.name,
+                        price: productInfo.price,
+                        image: productInfo.image,
+                        category: productInfo.category
+                    });
+                } else {
+                    // Sinon, stocker seulement l'ID (ancienne méthode)
+                    cart.push({ product_id: productId, quantity: quantity });
+                }
             }
             
             localStorage.setItem('cart_{{ $shop->id }}', JSON.stringify(cart));
@@ -444,18 +499,70 @@
             // Update cart count
             updateCartCount();
             
-            // Show success message
-            alert('Produit ajouté au panier !');
+            // Show success notification
+            if (window.showSuccess) {
+                window.showSuccess('Produit ajouté au panier !');
+            } else {
+                alert('Produit ajouté au panier !');
+            }
         }
         
         function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('cart_{{ $shop->id }}') || '[]');
-            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            // Fonction temporairement désactivée - compteur masqué
+            console.log('updateCartCount appelé mais désactivé (compteur masqué)');
+            return;
             
-            const cartBadge = document.querySelector('.cart-count');
-            if (cartBadge) {
-                cartBadge.textContent = count;
-                cartBadge.style.display = count > 0 ? 'flex' : 'none';
+            // Vérifier si l'utilisateur est connecté
+            const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+            
+            console.log('updateCartCount appelé, isAuthenticated:', isAuthenticated);
+            
+            if (isAuthenticated) {
+                // Utilisateur connecté - vérifier d'abord le localStorage
+                const localStorageCart = JSON.parse(localStorage.getItem('cart_{{ $shop->id }}') || '[]');
+                const localStorageCount = localStorageCart.reduce((total, item) => total + parseInt(item.quantity), 0);
+                
+                if (localStorageCount > 0) {
+                    // Si le localStorage a des produits, l'utiliser
+                    console.log('Utilisation du localStorage pour le compteur:', localStorageCount);
+                    const cartBadge = document.getElementById('cart-count-{{ $shop->id }}');
+                    if (cartBadge) {
+                        cartBadge.textContent = localStorageCount;
+                        cartBadge.style.display = 'flex';
+                    }
+                } else {
+                    // Sinon, récupérer le compteur via AJAX
+                    const cartCountRoute = '{{ $shop->isOnCustomDomain() ? route("shop.cart-count") : route("shop.cart-count.slug", $shop->slug) }}';
+                    console.log('Route AJAX:', cartCountRoute);
+                    fetch(cartCountRoute)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Réponse AJAX:', data);
+                            const cartBadge = document.getElementById('cart-count-{{ $shop->id }}');
+                            console.log('Element cartBadge trouvé:', cartBadge);
+                            if (cartBadge) {
+                                cartBadge.textContent = data.count;
+                                cartBadge.style.display = data.count > 0 ? 'flex' : 'none';
+                                console.log('Compteur mis à jour:', data.count);
+                            }
+                        })
+                        .catch(error => {
+                            console.log('Erreur lors de la récupération du compteur du panier:', error);
+                        });
+                }
+            } else {
+                // Utilisateur non connecté - compter depuis le localStorage
+                const cart = JSON.parse(localStorage.getItem('cart_{{ $shop->id }}') || '[]');
+                const count = cart.reduce((total, item) => total + parseInt(item.quantity), 0);
+                console.log('Panier localStorage:', cart, 'Count:', count);
+                
+                const cartBadge = document.getElementById('cart-count-{{ $shop->id }}');
+                console.log('Element cartBadge trouvé:', cartBadge);
+                if (cartBadge) {
+                    cartBadge.textContent = count;
+                    cartBadge.style.display = count > 0 ? 'flex' : 'none';
+                    console.log('Compteur mis à jour:', count);
+                }
             }
         }
         
@@ -556,6 +663,9 @@
         });
         @endauth
     </script>
+    
+    <!-- Notifications Service -->
+    <script src="{{ asset('js/notifications.js') }}"></script>
     
     @stack('scripts')
 </body>

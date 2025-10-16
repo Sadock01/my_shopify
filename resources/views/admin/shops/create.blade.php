@@ -109,7 +109,7 @@
             </div>
 
             <!-- Images -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div>
                     <label for="logo" class="block text-sm font-medium text-gray-700 mb-2">
                         Logo de la Boutique *
@@ -122,6 +122,21 @@
                            required>
                     <p class="mt-1 text-sm text-gray-500">Format: JPG, PNG, WebP. Max: 2MB</p>
                     @error('logo')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="favicon" class="block text-sm font-medium text-gray-700 mb-2">
+                        Favicon
+                    </label>
+                    <input type="file" 
+                           id="favicon" 
+                           name="favicon" 
+                           accept="image/*"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <p class="mt-1 text-sm text-gray-500">Format: .ico, .png, .jpg (16x16 ou 32x32 px)</p>
+                    @error('favicon')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

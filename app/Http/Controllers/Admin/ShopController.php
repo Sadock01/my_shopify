@@ -129,6 +129,7 @@ class ShopController extends Controller
             'description' => 'required|string',
             'template' => 'required|string',
             'logo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB max
+            'favicon' => 'nullable|image|mimes:jpeg,png,jpg,webp,ico|max:1024', // 1MB max
             'banner' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
             'owner_name' => 'required|string|max:255',
             'owner_email' => 'required|email|max:255',
@@ -203,13 +204,17 @@ class ShopController extends Controller
                 $shop->update(['logo' => $logoPath]);
             }
     
+            if ($request->hasFile('favicon')) {
+                $faviconPath = $request->file('favicon')->store("shops/{$shop->slug}", 'public');
+                $shop->update(['favicon' => $faviconPath]);
+            }
+    
             if ($request->hasFile('banner')) {
                 $bannerPath = $request->file('banner')->store("shops/{$shop->slug}", 'public');
                 $shop->update(['banner_image' => $bannerPath]);
             }
     
-            // Créer les catégories par défaut seulement
-            $this->createDefaultCategories($shop);
+            // L'admin créera ses propres catégories via l'interface d'administration
             
             // Ne pas créer de témoignages par défaut - utiliser ceux créés par l'utilisateur
     
@@ -224,6 +229,9 @@ class ShopController extends Controller
             // Supprimer les images uploadées en cas d'erreur
             if (isset($logoPath)) {
                 Storage::disk('public')->delete($logoPath);
+            }
+            if (isset($faviconPath)) {
+                Storage::disk('public')->delete($faviconPath);
             }
             if (isset($bannerPath)) {
                 Storage::disk('public')->delete($bannerPath);
@@ -248,6 +256,7 @@ class ShopController extends Controller
             'description' => 'required|string',
             'template' => 'required|string|in:horizon,tech,luxe,default',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'favicon' => 'nullable|image|mimes:jpeg,png,jpg,webp,ico|max:1024',
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'owner_name' => 'required|string|max:255',
             'owner_email' => 'required|email',
@@ -262,7 +271,7 @@ class ShopController extends Controller
         $shop->update($validated);
 
         // Upload des nouvelles images si fournies
-        if ($request->hasFile('logo') || $request->hasFile('banner')) {
+        if ($request->hasFile('logo') || $request->hasFile('favicon') || $request->hasFile('banner')) {
             $this->uploadImages($shop, $request);
         }
 
@@ -275,6 +284,9 @@ class ShopController extends Controller
         // Supprimer les images
         if ($shop->logo) {
             Storage::disk('public')->delete($shop->logo);
+        }
+        if ($shop->favicon) {
+            Storage::disk('public')->delete($shop->favicon);
         }
         if ($shop->banner_image) {
             Storage::disk('public')->delete($shop->banner_image);
@@ -331,6 +343,18 @@ class ShopController extends Controller
             $shop->update(['logo' => $logoPath]);
         }
 
+        // Favicon
+        if ($request->hasFile('favicon')) {
+            if ($shop->favicon) {
+                Storage::disk('public')->delete($shop->favicon);
+            }
+            $faviconPath = $request->file('favicon')->store(
+                "shops/{$shop->slug}", 
+                'public'
+            );
+            $shop->update(['favicon' => $faviconPath]);
+        }
+
         // Bannière
         if ($request->hasFile('banner')) {
             if ($shop->banner_image) {
@@ -344,30 +368,6 @@ class ShopController extends Controller
         }
     }
 
-    private function createDefaultCategories($shop)
-    {
-        $defaultCategories = [
-            ['name' => 'Vêtements', 'slug' => 'vetements'],
-            ['name' => 'Accessoires', 'slug' => 'accessoires'],
-            ['name' => 'Électronique', 'slug' => 'electronique'],
-            ['name' => 'Maison', 'slug' => 'maison']
-        ];
-
-        foreach ($defaultCategories as $category) {
-            // Vérifier si la catégorie existe déjà pour cette boutique
-            $existingCategory = Category::where('shop_id', $shop->id)
-                                      ->where('slug', $category['slug'])
-                                      ->first();
-            
-            if (!$existingCategory) {
-                Category::create([
-                    'shop_id' => $shop->id,
-                    'name' => $category['name'],
-                    'slug' => $category['slug']
-                ]);
-            }
-        }
-    }
 
     private function createDefaultTestimonials($shop)
     {

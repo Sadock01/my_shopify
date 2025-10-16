@@ -107,8 +107,13 @@ class ShopFrontendController extends Controller
     /**
      * Page produit individuel
      */
-    public function product(Request $request, $productId, $shop = null)
+    public function product(Request $request, $shop, $productId)
     {
+        // Si le shop est une chaîne (slug), le convertir en objet Shop
+        if (is_string($shop)) {
+            $shop = Shop::where('slug', $shop)->firstOrFail();
+        }
+        
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
             $shop = $request->attributes->get('current_shop');
@@ -138,8 +143,13 @@ class ShopFrontendController extends Controller
     /**
      * Produits par catégorie
      */
-    public function category(Request $request, $categorySlug, $shop = null)
+    public function category(Request $request, $shop, $categorySlug)
     {
+        // Si le shop est une chaîne (slug), le convertir en objet Shop
+        if (is_string($shop)) {
+            $shop = Shop::where('slug', $shop)->firstOrFail();
+        }
+        
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
             $shop = $request->attributes->get('current_shop');
@@ -167,7 +177,7 @@ class ShopFrontendController extends Controller
     /**
      * Panier
      */
-    public function cart(Request $request, $shop = null)
+    public function cart(Request $request, Shop $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
@@ -178,16 +188,113 @@ class ShopFrontendController extends Controller
             }
         }
 
-        // Récupérer le panier depuis la session
-        $cart = session()->get('cart_' . $shop->id, []);
+        // Récupérer le panier depuis la session si l'utilisateur est connecté
+        $cart = [];
+        if (Auth::check()) {
+            $cart = session()->get('cart_' . $shop->id, []);
+        }
 
         return view('shop.cart', compact('shop', 'cart'));
     }
 
     /**
+     * Obtenir le nombre d'articles dans le panier
+     */
+    public function getCartCount(Request $request, Shop $shop = null)
+    {
+        // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
+        if (!$shop) {
+            $shop = $request->attributes->get('current_shop');
+            
+            if (!$shop) {
+                return response()->json(['count' => 0]);
+            }
+        }
+
+        $count = 0;
+        if (Auth::check()) {
+            $cart = session()->get('cart_' . $shop->id, []);
+            $count = count($cart);
+        }
+
+        return response()->json(['count' => $count]);
+    }
+
+    /**
+     * Synchroniser le panier localStorage vers la session
+     */
+    public function syncCart(Request $request, Shop $shop = null)
+    {
+        // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
+        if (!$shop) {
+            $shop = $request->attributes->get('current_shop');
+            
+            if (!$shop) {
+                return response()->json(['success' => false, 'message' => 'Boutique non trouvée']);
+            }
+        }
+
+        // Vérifier que l'utilisateur est connecté
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non connecté']);
+        }
+
+        // Récupérer le panier depuis la requête
+        $cartData = $request->input('cart', []);
+        
+        // Sauvegarder dans la session
+        session(['cart_' . $shop->id => $cartData]);
+
+        return response()->json(['success' => true, 'message' => 'Panier synchronisé']);
+    }
+
+    /**
+     * Récupérer les informations des produits du panier
+     */
+    public function getCartProducts(Request $request, Shop $shop = null)
+    {
+        // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
+        if (!$shop) {
+            $shop = $request->attributes->get('current_shop');
+            
+            if (!$shop) {
+                return response()->json(['success' => false, 'message' => 'Boutique non trouvée']);
+            }
+        }
+
+        // Récupérer les IDs des produits depuis la requête
+        $productIds = $request->input('product_ids', []);
+        
+        if (empty($productIds)) {
+            return response()->json(['success' => true, 'products' => []]);
+        }
+
+        // Récupérer les produits depuis la base de données
+        $products = $shop->products()
+            ->whereIn('id', $productIds)
+            ->with('category')
+            ->active()
+            ->get()
+            ->keyBy('id');
+
+        // Ajouter un produit fictif pour les tests (ID 999)
+        if (in_array(999, $productIds)) {
+            $products[999] = (object) [
+                'id' => 999,
+                'name' => 'Produit Test',
+                'price' => 29.99,
+                'image' => 'https://via.placeholder.com/200x200?text=Test',
+                'category' => (object) ['name' => 'Test']
+            ];
+        }
+
+        return response()->json(['success' => true, 'products' => $products]);
+    }
+
+    /**
      * Page de paiement (nécessite authentification)
      */
-    public function paymentInfo(Request $request, $shop = null)
+    public function paymentInfo(Request $request, Shop $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
@@ -216,7 +323,7 @@ class ShopFrontendController extends Controller
     /**
      * Traitement de la commande (nécessite authentification)
      */
-    public function checkout(Request $request, $shop = null)
+    public function checkout(Request $request, Shop $shop = null)
     {
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {

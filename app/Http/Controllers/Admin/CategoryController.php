@@ -41,8 +41,18 @@ class CategoryController extends Controller
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        // Générer le slug automatiquement
-        $validated['slug'] = Str::slug($validated['name']);
+        // Générer le slug automatiquement et s'assurer qu'il est unique pour cette boutique
+        $baseSlug = Str::slug($validated['name']);
+        $slug = $baseSlug;
+        $counter = 1;
+        
+        // Vérifier l'unicité du slug pour cette boutique
+        while ($shop->categories()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+        
+        $validated['slug'] = $slug;
         
         // Upload de l'image si fournie
         if ($request->hasFile('image')) {
@@ -88,8 +98,18 @@ class CategoryController extends Controller
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        // Générer le slug automatiquement
-        $validated['slug'] = Str::slug($validated['name']);
+        // Générer le slug automatiquement et s'assurer qu'il est unique pour cette boutique
+        $baseSlug = Str::slug($validated['name']);
+        $slug = $baseSlug;
+        $counter = 1;
+        
+        // Vérifier l'unicité du slug pour cette boutique (en excluant la catégorie actuelle)
+        while ($shop->categories()->where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+        
+        $validated['slug'] = $slug;
 
         // Upload de la nouvelle image si fournie
         if ($request->hasFile('image')) {

@@ -33,34 +33,63 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Banque</label>
-                        <p class="text-gray-900 font-medium">{{ $shop->payment_info['bank_name'] ?? 'Non renseigné' }}</p>
+                        <p class="text-gray-900 font-medium">{{ $shop->bank_name ?: 'Non renseigné' }}</p>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Titulaire du compte</label>
-                        <p class="text-gray-900 font-medium">{{ $shop->payment_info['account_holder'] ?? 'Non renseigné' }}</p>
+                        <p class="text-gray-900 font-medium">{{ $shop->account_holder ?: 'Non renseigné' }}</p>
                     </div>
                     
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de compte IBAN</label>
                         <div class="flex items-center space-x-2">
-                            <p class="text-gray-900 font-mono text-lg">{{ $shop->payment_info['account_number'] ?? 'Non renseigné' }}</p>
-                            <button onclick="copyToClipboard('{{ $shop->payment_info['account_number'] ?? '' }}')" class="text-primary hover:text-primary-dark">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            </button>
+                            <p class="text-gray-900 font-mono text-lg">{{ $shop->iban ?: 'Non renseigné' }}</p>
+                            @if($shop->iban)
+                                <button onclick="copyToClipboard('{{ $shop->iban }}')" class="text-primary hover:text-primary-dark">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </button>
+                            @endif
                         </div>
                     </div>
                     
-                    @if(isset($shop->payment_info['swift_code']))
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Code SWIFT/BIC</label>
-                        <p class="text-gray-900 font-mono">{{ $shop->payment_info['swift_code'] }}</p>
+                    @if($shop->bic)
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Code BIC/SWIFT</label>
+                        <p class="text-gray-900 font-mono">{{ $shop->bic }}</p>
                     </div>
                     @endif
                 </div>
             </div>
+
+            <!-- Méthodes de paiement acceptées -->
+            @if($shop->payment_methods && count($shop->payment_methods) > 0)
+            <div class="bg-green-50 rounded-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-green-900 mb-4">Méthodes de paiement acceptées</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach($shop->payment_methods as $method)
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-green-800 font-medium">{{ $method }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <!-- Instructions de paiement personnalisées -->
+            @if($shop->payment_instructions)
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-yellow-900 mb-4">Instructions de paiement</h3>
+                <div class="text-yellow-800">
+                    {!! nl2br(e($shop->payment_instructions)) !!}
+                </div>
+            </div>
+            @endif
 
             <!-- Important Notes -->
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">

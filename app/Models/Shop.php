@@ -16,6 +16,7 @@ class Shop extends Model
         'domain',
         'description',
         'logo',
+        'favicon',
         'banner_image',
         'theme_settings',
         'payment_info',
@@ -29,13 +30,20 @@ class Shop extends Model
         'owner_address',
         'owner_website',
         'owner_bio',
-        'is_active'
+        'is_active',
+        'bank_name',
+        'account_holder',
+        'iban',
+        'bic',
+        'payment_instructions',
+        'payment_methods'
     ];
 
     protected $casts = [
         'theme_settings' => 'array',
         'payment_info' => 'array',
         'social_links' => 'array',
+        'payment_methods' => 'array',
         'is_active' => 'boolean'
     ];
 

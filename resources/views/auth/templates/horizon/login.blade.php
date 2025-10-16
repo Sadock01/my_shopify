@@ -65,7 +65,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('shop.login.post') }}" class="space-y-6">
+            <form method="POST" action="{{ route('shop.login.slug.post', ['shop' => $shop->slug]) }}" class="space-y-6">
                 @csrf
                 
                 <div>
@@ -126,10 +126,16 @@
                 </a>
             </div>
             @endif
-        </div>
     </div>
+</div>
 
-    <script>
+<!-- Notifications -->
+@include('components.session-notifications')
+
+<!-- Notifications Service -->
+<script src="{{ asset('js/notifications.js') }}"></script>
+
+<script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const eyeOpen = document.getElementById('eye-open');

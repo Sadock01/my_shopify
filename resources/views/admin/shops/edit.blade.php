@@ -81,6 +81,19 @@
                 </div>
 
                 <div>
+                    <label for="favicon" class="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
+                    @if($shop->favicon)
+                        <div class="mb-2">
+                            <img src="{{ Storage::url($shop->favicon) }}" alt="Favicon actuel" class="w-8 h-8 object-cover rounded">
+                            <p class="text-xs text-gray-500 mt-1">Favicon actuel (16x16 ou 32x32 px recommandé)</p>
+                        </div>
+                    @endif
+                    <input type="file" name="favicon" id="favicon" accept="image/*"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Format recommandé : .ico, .png, .jpg (16x16 ou 32x32 pixels)</p>
+                </div>
+
+                <div>
                     <label for="banner" class="block text-sm font-medium text-gray-700 mb-2">Bannière</label>
                     @if($shop->banner_image)
                         <div class="mb-2">

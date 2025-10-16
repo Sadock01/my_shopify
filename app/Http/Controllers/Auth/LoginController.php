@@ -50,10 +50,22 @@ class LoginController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+ 
             return redirect()->route('admin.login')->with('success', 'Déconnexion réussie !');
         }
         
         // Si l'utilisateur n'est pas connecté, rediriger vers la page de login admin
         return redirect()->route('admin.login')->with('info', 'Vous n\'étiez pas connecté.');
+    }
+    
+    public function clearCart(Request $request)
+    {
+        // Vider le panier localStorage pour tous les shops
+        $shops = Shop::all();
+        foreach ($shops as $shop) {
+            $request->session()->forget('cart_' . $shop->id);
+        }
+        
+        return response()->json(['success' => true, 'message' => 'Panier vidé']);
     }
 }

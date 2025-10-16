@@ -39,7 +39,7 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($product->image)
-                                <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-16 h-16 object-cover rounded">
+                                <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-16 h-16 object-cover rounded">
                             @else
                                 <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
                                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

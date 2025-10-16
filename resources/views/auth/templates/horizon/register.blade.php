@@ -69,7 +69,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('shop.register.post') }}" class="space-y-6">
+            <form method="POST" action="{{ route('shop.register.slug.post', ['shop' => $shop->slug]) }}" class="space-y-6">
                 @csrf
                 
                 <div>

@@ -5,6 +5,9 @@
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Gérer la Boutique : {{ $shop->name }}</h1>
         <div class="flex space-x-3">
+            <a href="{{ route('admin.payment-info.index', $shop) }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                Informations de Paiement
+            </a>
             <a href="{{ route('admin.shops.payment-methods.index', $shop) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Moyens de Paiement
             </a>
@@ -222,7 +225,7 @@
                 @foreach($shop->products->take(6) as $product)
                 <div class="border border-gray-200 rounded-lg overflow-hidden">
                     @if($product->image)
-                        <img class="w-full h-48 object-cover" src="{{ $product->image }}" alt="{{ $product->name }}">
+                        <img class="w-full h-48 object-cover" src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}">
                     @endif
                     <div class="p-4">
                         <h3 class="font-medium text-gray-900 mb-2">{{ $product->name }}</h3>
