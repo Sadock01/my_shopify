@@ -160,6 +160,10 @@ class UserController extends Controller
     {
         $query = $request->get('q');
         
+        if (empty($query)) {
+            return redirect()->route('admin.users.index');
+        }
+        
         $users = User::where('name', 'like', "%{$query}%")
             ->orWhere('email', 'like', "%{$query}%")
             ->orWhere('phone', 'like', "%{$query}%")

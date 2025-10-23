@@ -20,7 +20,8 @@ class Order extends Model
         'items',
         'total_amount',
         'status',
-        'notes'
+        'notes',
+        'payment_proof'
     ];
 
     protected $casts = [

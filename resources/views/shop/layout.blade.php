@@ -508,12 +508,12 @@
         }
         
         function updateCartCount() {
-            // Fonction temporairement désactivée - compteur masqué
-            console.log('updateCartCount appelé mais désactivé (compteur masqué)');
-            return;
-            
             // Vérifier si l'utilisateur est connecté
             const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+            
+            if (!isAuthenticated) {
+                return;
+            }
             
             console.log('updateCartCount appelé, isAuthenticated:', isAuthenticated);
             

@@ -145,10 +145,10 @@
             <!-- Action Buttons -->
             <div class="mt-8 flex flex-col sm:flex-row gap-4">
                 <a href="{{ route('shop.home') }}" class="flex-1 bg-gray-100 text-gray-900 py-3 px-6 rounded-md font-semibold hover:bg-gray-200 transition-colors text-center">
-                    Retour à l'accueil
+                    Annuler
                 </a>
-                <a href="{{ route('shop.products') }}" class="flex-1 bg-primary text-white py-3 px-6 rounded-md font-semibold hover:opacity-90 transition-opacity text-center">
-                    Continuer les achats
+                <a href="/upload-payment-proof/{{ $shop->slug }}" class="flex-1 bg-green-600 text-white py-3 px-6 rounded-md font-semibold hover:bg-green-700 transition-colors text-center">
+                    Payer l'achat
                 </a>
             </div>
         </div>
