@@ -62,11 +62,28 @@ class ShopFrontendController extends Controller
 
         $query = $shop->products()->with('category')->active();
 
-        // Filtrage par catégorie
-        if ($request->has('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
+        // Recherche par nom ou description
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('description', 'LIKE', "%{$searchTerm}%");
             });
+        }
+
+        // Filtrage par catégorie
+        if ($request->has('category') && !empty($request->category)) {
+            $query->whereIn('category_id', (array) $request->category);
+        }
+
+        // Filtrage par prix minimum
+        if ($request->has('min_price') && !empty($request->min_price)) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        // Filtrage par prix maximum
+        if ($request->has('max_price') && !empty($request->max_price)) {
+            $query->where('price', '<=', $request->max_price);
         }
 
         // Filtrage par disponibilité
@@ -99,9 +116,34 @@ class ShopFrontendController extends Controller
         }
 
         $products = $query->paginate(12);
-        $categories = $shop->products()->with('category')->get()->pluck('category')->unique();
+        $categories = $shop->categories()->where('is_active', true)->get();
 
-        return view('shop.products', compact('shop', 'products', 'categories'));
+        // Calculer les prix min/max pour les filtres
+        $priceRange = $shop->products()->active()->selectRaw('MIN(price) as min_price, MAX(price) as max_price')->first();
+        $minPrice = $priceRange->min_price ?? 0;
+        $maxPrice = $priceRange->max_price ?? 1000;
+
+        // Si c'est une requête AJAX, retourner JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'products' => $products->items(),
+                'pagination' => [
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total(),
+                ],
+                'filters' => [
+                    'min_price' => $minPrice,
+                    'max_price' => $maxPrice,
+                    'search' => $request->search,
+                    'category' => $request->category,
+                    'sort' => $request->sort,
+                ]
+            ]);
+        }
+
+        return view('shop.products', compact('shop', 'products', 'categories', 'minPrice', 'maxPrice'));
     }
 
     /**
