@@ -91,7 +91,8 @@ Route::middleware(['auth', 'admin', 'refresh.session'])->prefix('admin')->name('
     Route::resource('users', App\Http\Controllers\Admin\UserController::class);
 
     // Gestion des commandes
-    Route::resource('orders', App\Http\Controllers\Admin\OrderController::class);
+    Route::get('/orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
+    Route::resource('orders', App\Http\Controllers\Admin\OrderController::class)->except(['index']);
     Route::patch('/orders/{order}/update-status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::get('/orders/{order}/view-proof', [App\Http\Controllers\Admin\OrderController::class, 'viewPaymentProof'])->name('orders.view-proof');
     Route::get('/orders/{order}/download-proof', [App\Http\Controllers\Admin\OrderController::class, 'downloadPaymentProof'])->name('orders.download-proof');
