@@ -67,9 +67,9 @@
                 @foreach($order->items as $item)
                 <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                     <div class="flex-shrink-0">
-                        @if(isset($item['product_image']))
-                            <img src="{{ Storage::url($item['product_image']) }}" 
-                                 alt="{{ $item['product_name'] }}" 
+                        @if(isset($item['image']))
+                            <img src="{{ asset('documents/' . $item['image']) }}" 
+                                 alt="{{ $item['name'] }}" 
                                  class="w-16 h-16 object-cover rounded-lg">
                         @else
                             <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -80,7 +80,7 @@
                         @endif
                     </div>
                     <div class="flex-1">
-                        <h4 class="font-medium text-gray-900">{{ $item['product_name'] }}</h4>
+                        <h4 class="font-medium text-gray-900">{{ $item['name'] }}</h4>
                         <p class="text-sm text-gray-500">Quantité: {{ $item['quantity'] }}</p>
                         @if(isset($item['size']))
                             <p class="text-sm text-gray-500">Taille: {{ $item['size'] }}</p>
@@ -178,7 +178,7 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Boutique</h3>
             <div class="flex items-center space-x-3">
                 @if($order->shop->logo)
-                    <img src="{{ Storage::url($order->shop->logo) }}" 
+                    <img src="{{ asset('documents/' . $order->shop->logo) }}" 
                          alt="Logo {{ $order->shop->name }}" 
                          class="w-10 h-10 rounded-lg object-cover">
                 @else
