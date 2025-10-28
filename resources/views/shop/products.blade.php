@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (sortBy) params.append('sort', sortBy);
         
         // Faire la requête AJAX
-        fetch(`{{ route('shop.products.slug', ['shop' => $shop->slug]) }}?${params.toString()}`, {
+        fetch(`/shop/{{ $shop->slug }}/products?${params.toString()}`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',

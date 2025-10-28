@@ -51,11 +51,20 @@ class ShopFrontendController extends Controller
      */
     public function products(Request $request, Shop $shop = null)
     {
+        \Log::info('=== MÉTHODE PRODUCTS APPELÉE ===', [
+            'url' => $request->url(),
+            'method' => $request->method(),
+            'is_ajax' => $request->ajax(),
+            'shop_slug' => $shop ? $shop->slug : 'null',
+            'all_params' => $request->all()
+        ]);
+        
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
             $shop = $request->attributes->get('current_shop');
             
             if (!$shop) {
+                \Log::error('Shop non trouvé dans les attributs');
                 abort(404);
             }
         }
@@ -125,6 +134,12 @@ class ShopFrontendController extends Controller
 
         // Si c'est une requête AJAX, retourner JSON
         if ($request->ajax()) {
+            \Log::info('Réponse AJAX produits', [
+                'products_count' => $products->count(),
+                'total' => $products->total(),
+                'current_page' => $products->currentPage()
+            ]);
+            
             return response()->json([
                 'products' => $products->items(),
                 'pagination' => [
