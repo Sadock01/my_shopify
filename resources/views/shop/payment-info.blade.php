@@ -30,18 +30,13 @@
             <div class="bg-gray-50 rounded-lg p-6 mb-8">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations bancaires</h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Banque</label>
-                        <p class="text-gray-900 font-medium">{{ $shop->bank_name ?: 'Non renseigné' }}</p>
-                    </div>
-                    
+                <div class="grid grid-cols-1 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Titulaire du compte</label>
                         <p class="text-gray-900 font-medium">{{ $shop->account_holder ?: 'Non renseigné' }}</p>
                     </div>
                     
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de compte IBAN</label>
                         <div class="flex items-center space-x-2">
                             <p class="text-gray-900 font-mono text-lg">{{ $shop->iban ?: 'Non renseigné' }}</p>
@@ -56,7 +51,7 @@
                     </div>
                     
                     @if($shop->bic)
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Code BIC/SWIFT</label>
                         <p class="text-gray-900 font-mono">{{ $shop->bic }}</p>
                     </div>

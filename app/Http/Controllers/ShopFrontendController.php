@@ -179,6 +179,14 @@ class ShopFrontendController extends Controller
      */
     public function cart(Request $request, Shop $shop = null)
     {
+        \Log::info('=== MÉTHODE CART APPELÉE ===', [
+            'url' => $request->url(),
+            'method' => $request->method(),
+            'is_ajax' => $request->ajax(),
+            'has_cart_data' => $request->has('cart_data'),
+            'user' => auth()->user() ? auth()->user()->email : 'non connecté'
+        ]);
+        
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
             $shop = $request->attributes->get('current_shop');
@@ -187,12 +195,56 @@ class ShopFrontendController extends Controller
                 abort(404);
             }
         }
+        
+        \Log::info('Shop détecté', [
+            'shop_id' => $shop->id,
+            'shop_slug' => $shop->slug,
+            'shop_name' => $shop->name
+        ]);
+
+        // Si c'est une requête AJAX pour récupérer le panier localStorage
+        if ($request->ajax() && $request->has('cart_data')) {
+            $cart = json_decode($request->input('cart_data'), true) ?? [];
+            \Log::info('=== REQUÊTE AJAX REÇUE ===', [
+                'cart_data_raw' => $request->input('cart_data'),
+                'cart_parsed' => $cart,
+                'cart_count' => count($cart)
+            ]);
+            
+            // Synchroniser vers la session
+            session(['cart_' . $shop->id => $cart]);
+            
+            \Log::info('Panier sauvegardé en session', [
+                'session_key' => 'cart_' . $shop->id,
+                'session_cart' => session()->get('cart_' . $shop->id, [])
+            ]);
+            
+            return response()->json(['success' => true, 'cart' => $cart]);
+        }
 
         // Récupérer le panier depuis la session si l'utilisateur est connecté
         $cart = [];
         if (Auth::check()) {
             $cart = session()->get('cart_' . $shop->id, []);
+            
+            \Log::info('Panier récupéré depuis session', [
+                'session_key' => 'cart_' . $shop->id,
+                'cart_content' => $cart,
+                'cart_count' => count($cart)
+            ]);
+            
+            // Si le panier de session est vide, essayer de récupérer depuis localStorage via AJAX
+            if (empty($cart)) {
+                \Log::info('Panier session vide dans cart, vérification localStorage nécessaire');
+            }
+        } else {
+            \Log::info('Utilisateur non connecté');
         }
+
+        \Log::info('Retour de la vue cart', [
+            'cart_count' => count($cart),
+            'cart_content' => $cart
+        ]);
 
         return view('shop.cart', compact('shop', 'cart'));
     }
@@ -313,18 +365,28 @@ class ShopFrontendController extends Controller
         // Récupérer le panier depuis la session
         $cart = session()->get('cart_' . $shop->id, []);
         
+        // Si le panier est vide, continuer quand même (peut venir d'une commande récente)
         if (empty($cart)) {
-            return redirect()->route('shop.cart')->with('error', 'Votre panier est vide.');
+            $cart = [];
+            \Log::info('Panier session vide dans paymentInfo, continuation avec panier vide');
         }
 
         return view('shop.payment-info', compact('shop', 'cart'));
     }
 
     /**
-     * Traitement de la commande (nécessite authentification)
+     * Page des informations de livraison
      */
-    public function checkout(Request $request, Shop $shop = null)
+    public function deliveryInfo(Request $request, Shop $shop = null)
     {
+        // Debug temporaire
+        \Log::info('deliveryInfo appelé', [
+            'shop' => $shop ? $shop->slug : 'null',
+            'url' => $request->url(),
+            'method' => $request->method(),
+            'user' => auth()->user() ? auth()->user()->email : 'non connecté'
+        ]);
+        
         // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
         if (!$shop) {
             $shop = $request->attributes->get('current_shop');
@@ -342,35 +404,261 @@ class ShopFrontendController extends Controller
         // Récupérer le panier depuis la session
         $cart = session()->get('cart_' . $shop->id, []);
         
+        \Log::info('Panier récupéré dans deliveryInfo', [
+            'shop_id' => $shop->id,
+            'cart_key' => 'cart_' . $shop->id,
+            'cart_content' => $cart,
+            'cart_count' => count($cart)
+        ]);
+        
+        // Si le panier est vide, continuer quand même (les données viendront du formulaire)
         if (empty($cart)) {
-            return redirect()->route('shop.cart')->with('error', 'Votre panier est vide.');
+            $cart = [];
+            \Log::info('Panier session vide dans deliveryInfo, continuation avec panier vide');
         }
 
+        // Enrichir le panier pour l'affichage (name, price, image)
+        $cartDisplay = [];
+        if (!empty($cart)) {
+            $productIds = array_column($cart, 'product_id');
+            $products = \App\Models\Product::whereIn('id', $productIds)->get()->keyBy('id');
+            
+            foreach ($cart as $item) {
+                if (isset($products[$item['product_id']])) {
+                    $product = $products[$item['product_id']];
+                    $cartDisplay[] = [
+                        'product_id' => $product->id,
+                        'name' => $product->name,
+                        'price' => (float) $product->price,
+                        'quantity' => (int) ($item['quantity'] ?? 1),
+                        'image' => $product->image,
+                    ];
+                }
+            }
+        }
+        
+        \Log::info('Panier enrichi pour deliveryInfo', [
+            'cart_display' => $cartDisplay,
+            'cart_count' => count($cartDisplay)
+        ]);
+
+        return view('shop.checkout-delivery', ['shop' => $shop, 'cart' => $cartDisplay]);
+    }
+
+    /**
+     * Traitement des informations de livraison et création de la commande
+     */
+    public function processCheckout(Request $request, Shop $shop = null)
+    {
+        // Debug temporaire
+        \Log::info('processCheckout appelé', [
+            'shop' => $shop ? $shop->slug : 'null',
+            'url' => $request->url(),
+            'method' => $request->method(),
+            'has_cart_data' => $request->has('cart_data'),
+            'session_cart' => session()->get('cart_' . ($shop ? $shop->id : 'unknown'), []),
+            'csrf_token' => $request->input('_token'),
+            'all_inputs' => $request->all()
+        ]);
+        
+        // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
+        if (!$shop) {
+            $shop = $request->attributes->get('current_shop');
+            
+            if (!$shop) {
+                abort(404);
+            }
+        }
+
+        // Vérifier que l'utilisateur est connecté
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour passer une commande.');
+        }
+
+        // Récupérer le panier depuis cart_data (priorité) ou session
+        $cart = [];
+        if ($request->has('cart_data')) {
+            $cart = json_decode($request->input('cart_data'), true) ?? [];
+            \Log::info('Panier récupéré depuis cart_data', ['cart' => $cart]);
+        } else {
+            $cart = session()->get('cart_' . $shop->id, []);
+            \Log::info('Panier récupéré depuis session', ['cart' => $cart]);
+        }
+
+        // Validation des informations de livraison
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_email' => 'required|email',
-            'customer_phone' => 'nullable|string',
-            'customer_address' => 'nullable|string',
-            'items' => 'required|array',
-            'total_amount' => 'required|numeric|min:0',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'city' => 'required|string|max:255',
+            'postal_code' => 'required|string|max:10',
+            'country' => 'required|string|max:255',
+            'delivery_instructions' => 'nullable|string|max:500'
+        ]);
+
+        \Log::info('Validation réussie, création de la commande', [
+            'validated' => $validated,
+            'cart' => $cart
+        ]);
+
+        // Récupérer les prix des produits depuis la base de données
+        $productIds = array_column($cart, 'product_id');
+        $products = \App\Models\Product::whereIn('id', $productIds)->get()->keyBy('id');
+        
+        \Log::info('Produits récupérés', [
+            'product_ids' => $productIds,
+            'products' => $products->toArray()
+        ]);
+
+        // Calculer le total en utilisant les prix de la base de données
+        $totalAmount = 0;
+        foreach ($cart as $item) {
+            if (isset($products[$item['product_id']])) {
+                $product = $products[$item['product_id']];
+                $itemTotal = $product->price * $item['quantity'];
+                $totalAmount += $itemTotal;
+                
+                \Log::info('Calcul item', [
+                    'product_id' => $item['product_id'],
+                    'product_name' => $product->name,
+                    'product_price' => $product->price,
+                    'quantity' => $item['quantity'],
+                    'item_total' => $itemTotal
+                ]);
+            }
+        }
+
+        \Log::info('Calcul du total', [
+            'total_amount' => $totalAmount,
+            'cart_items' => $cart
+        ]);
+
+        // Créer la commande
+        try {
+            // Préparer les items avec les informations complètes des produits
+            $orderItems = [];
+            foreach ($cart as $item) {
+                if (isset($products[$item['product_id']])) {
+                    $product = $products[$item['product_id']];
+                    $orderItems[] = [
+                        'product_id' => $product->id,
+                        'name' => $product->name,
+                        'price' => $product->price,
+                        'quantity' => $item['quantity'],
+                        'image' => $product->image,
+                        'category' => $product->category ? $product->category->name : null
+                    ];
+                }
+            }
+            
+            \Log::info('Items de commande préparés', [
+                'order_items' => $orderItems
+            ]);
+            
+            $order = \App\Models\Order::create([
+                'shop_id' => $shop->id,
+                'user_id' => Auth::id(),
+                'order_number' => 'CMD-' . time() . '-' . rand(1000, 9999),
+                'customer_name' => $validated['first_name'] . ' ' . $validated['last_name'],
+                'customer_email' => $validated['email'],
+                'customer_phone' => $validated['phone'],
+                'customer_address' => $validated['address'] . ', ' . $validated['city'] . ', ' . $validated['postal_code'] . ', ' . $validated['country'],
+                'items' => $orderItems,
+                'total_amount' => $totalAmount,
+                'status' => 'pending',
+                'notes' => $validated['delivery_instructions']
+            ]);
+            
+            \Log::info('Commande créée avec succès', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la création de la commande', [
+                'error' => $e->getMessage(),
+                'cart' => $cart,
+                'validated' => $validated
+            ]);
+            return redirect()->back()->with('error', 'Erreur lors de la création de la commande: ' . $e->getMessage());
+        }
+
+        // Vider le panier
+        session()->forget('cart_' . $shop->id);
+
+        // Rediriger vers la page de paiement
+        $redirectUrl = "/shop/{$shop->slug}/payment-info";
+        \Log::info('Redirection vers payment-info', [
+            'redirect_url' => $redirectUrl,
+            'order_id' => $order->id
+        ]);
+        
+        return redirect()->to($redirectUrl)
+            ->with('success', 'Commande créée avec succès ! Veuillez procéder au paiement.');
+    }
+
+    /**
+     * Traitement de la commande (nécessite authentification) - ANCIENNE MÉTHODE
+     */
+    public function checkout(Request $request, Shop $shop = null)
+    {
+        // Si le shop n'est pas injecté (routes avec domaine), le récupérer depuis les attributs
+        if (!$shop) {
+            $shop = $request->attributes->get('current_shop');
+            
+            if (!$shop) {
+                abort(404);
+            }
+        }
+
+        // Vérifier que l'utilisateur est connecté
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour passer une commande.');
+        }
+
+        // Récupérer le panier depuis la session ou depuis la requête
+        $cart = session()->get('cart_' . $shop->id, []);
+        
+        // Si le panier de session est vide, vérifier s'il y a des données dans la requête
+        if (empty($cart) && $request->has('cart_data')) {
+            $cart = json_decode($request->input('cart_data'), true) ?? [];
+        }
+        
+        // Si le panier est toujours vide, rediriger vers le panier
+        if (empty($cart)) {
+            return redirect()->to("/{$shop->slug}/cart")->with('error', 'Votre panier est vide. Veuillez ajouter des produits avant de continuer.');
+        }
+
+        // Validation des informations de livraison
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'city' => 'required|string|max:255',
+            'postal_code' => 'required|string|max:10',
+            'country' => 'required|string|max:255',
         ]);
 
         // Créer la commande avec l'ID de l'utilisateur connecté
         $order = $shop->orders()->create([
             'order_number' => \App\Models\Order::generateOrderNumber(),
-            'user_id' => Auth::id(), // Ajouter l'ID de l'utilisateur connecté
-            'customer_name' => $validated['customer_name'],
-            'customer_email' => $validated['customer_email'],
-            'customer_phone' => $validated['customer_phone'],
-            'customer_address' => $validated['customer_address'],
-            'items' => $validated['items'],
-            'total_amount' => $validated['total_amount'],
+            'user_id' => Auth::id(),
+            'customer_name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'customer_email' => $validated['email'],
+            'customer_phone' => $validated['phone'],
+            'customer_address' => $validated['address'] . ', ' . $validated['city'] . ' ' . $validated['postal_code'] . ', ' . $validated['country'],
+            'items' => $cart,
+            'total_amount' => array_sum(array_map(function($item) { return $item['price'] * $item['quantity']; }, $cart)),
             'status' => 'pending'
         ]);
 
         // Vider le panier
         session()->forget('cart_' . $shop->id);
 
-        return redirect()->route('shop.payment-info')->with('success', 'Commande créée avec succès !');
+        // Rediriger vers la page de paiement
+        return redirect()->to("/{$shop->slug}/payment-info")->with('success', 'Commande créée avec succès !');
     }
 }

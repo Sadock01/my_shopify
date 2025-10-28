@@ -104,7 +104,8 @@
         </div>
     </section>
 
-    <!-- Payment Methods Section -->
+    <!-- Payment Methods Section - MASQUÉE -->
+    {{-- 
     @if($shop->paymentMethods->count() > 0)
     <section class="py-16 bg-gray-50">
         <div class="max-w-6xl mx-auto px-6">
@@ -130,6 +131,7 @@
         </div>
     </section>
     @endif
+    --}}
 
     <!-- Testimonials Section -->
     @if($shop->testimonials->count() > 0)

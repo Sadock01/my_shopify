@@ -113,6 +113,7 @@ Route::middleware(['detect.shop'])->group(function () {
     Route::get('/products/{productId}', [ShopFrontendController::class, 'product'])->name('shop.product');
     Route::get('/category/{categorySlug}', [ShopFrontendController::class, 'category'])->name('shop.category');
     Route::get('/cart', [ShopFrontendController::class, 'cart'])->name('shop.cart');
+    Route::post('/cart', [ShopFrontendController::class, 'cart'])->name('shop.cart.post');
     
     // Routes d'authentification avec template de boutique
     Route::get('/login', [ShopAuthController::class, 'showLogin'])->name('shop.login');
@@ -127,6 +128,8 @@ Route::middleware(['detect.shop'])->group(function () {
     
     // Routes protégées par authentification
     Route::middleware(['auth', 'refresh.session'])->group(function () {
+        Route::get('/checkout/delivery', [ShopFrontendController::class, 'deliveryInfo'])->name('shop.checkout.delivery');
+        Route::post('/checkout/process', [ShopFrontendController::class, 'processCheckout'])->name('shop.checkout.process');
         Route::post('/checkout', [ShopFrontendController::class, 'checkout'])->name('shop.checkout');
         Route::get('/payment-info', [ShopFrontendController::class, 'paymentInfo'])->name('shop.payment-info');
         
@@ -156,6 +159,7 @@ Route::prefix('shop/{shop:slug}')->group(function () {
     Route::get('/products/{productId}', [ShopFrontendController::class, 'product'])->name('shop.product.slug');
     Route::get('/category/{categorySlug}', [ShopFrontendController::class, 'category'])->name('shop.category.slug');
     Route::get('/cart', [ShopFrontendController::class, 'cart'])->name('shop.cart.slug');
+    Route::post('/cart', [ShopFrontendController::class, 'cart'])->name('shop.cart.slug.post');
     
     // Routes d'authentification avec template de boutique
     Route::get('/login', [ShopAuthController::class, 'showLogin'])->name('shop.login.slug');
@@ -170,6 +174,8 @@ Route::prefix('shop/{shop:slug}')->group(function () {
     
     // Routes protégées par authentification
     Route::middleware(['auth', 'refresh.session'])->group(function () {
+        Route::get('/checkout/delivery', [ShopFrontendController::class, 'deliveryInfo'])->name('shop.checkout.delivery.slug');
+        Route::post('/checkout/process', [ShopFrontendController::class, 'processCheckout'])->name('shop.checkout.process.slug');
         Route::post('/checkout', [ShopFrontendController::class, 'checkout'])->name('shop.checkout.slug');
         Route::get('/payment-info', [ShopFrontendController::class, 'paymentInfo'])->name('shop.payment-info.slug');
         
@@ -192,6 +198,129 @@ Route::prefix('shop/{shop:slug}')->group(function () {
 // ========================================
 // ROUTES DE TEST (À SUPPRIMER EN PRODUCTION)
 // ========================================
+
+// Route de debug pour le panier
+Route::get('/debug-cart', function () {
+    $user = auth()->user();
+    $shop = \App\Models\Shop::first();
+    
+    if (!$user) {
+        return "Utilisateur non connecté";
+    }
+    
+    $sessionCart = session()->get('cart_' . $shop->id, []);
+    
+    $output = "<h1>Cart Debug</h1>";
+    $output .= "<p><strong>User:</strong> {$user->name} ({$user->email})</p>";
+    $output .= "<p><strong>Shop:</strong> {$shop->name} (ID: {$shop->id})</p>";
+    $output .= "<p><strong>Session Cart Key:</strong> cart_{$shop->id}</p>";
+    $output .= "<p><strong>Session Cart:</strong></p>";
+    $output .= "<pre>" . json_encode($sessionCart, JSON_PRETTY_PRINT) . "</pre>";
+    
+    return $output;
+});
+
+// Route de test CSRF
+Route::get('/test-csrf', function () {
+    return response()->json([
+        'csrf_token' => csrf_token(),
+        'session_id' => session()->getId(),
+        'session_data' => session()->all()
+    ]);
+});
+
+// Route de test pour checkout process
+Route::post('/test-checkout-process', function(Request $request) {
+    \Log::info('Test checkout process appelé', [
+        'all_inputs' => $request->all(),
+        'has_cart_data' => $request->has('cart_data'),
+        'cart_data' => $request->input('cart_data')
+    ]);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Test réussi',
+        'cart_data' => $request->input('cart_data'),
+        'all_data' => $request->all()
+    ]);
+});
+
+// Route de debug panier en temps réel
+Route::get('/debug-cart-live', function () {
+    $user = auth()->user();
+    $shop = \App\Models\Shop::first();
+    
+    if (!$user) {
+        return response()->json(['error' => 'Utilisateur non connecté']);
+    }
+    
+    $sessionCart = session()->get('cart_' . $shop->id, []);
+    
+    return response()->json([
+        'user' => $user->email,
+        'shop' => $shop->name,
+        'shop_id' => $shop->id,
+        'cart_key' => 'cart_' . $shop->id,
+        'session_cart' => $sessionCart,
+        'cart_count' => count($sessionCart),
+        'session_id' => session()->getId(),
+        'timestamp' => now()
+    ]);
+});
+
+// Route pour forcer la synchronisation du panier
+Route::post('/force-cart-sync', function(Request $request) {
+    \Log::info('=== FORCE CART SYNC APPELÉ ===', [
+        'url' => $request->url(),
+        'method' => $request->method(),
+        'is_ajax' => $request->ajax(),
+        'has_cart_data' => $request->has('cart_data'),
+        'all_inputs' => $request->all()
+    ]);
+    
+    $user = auth()->user();
+    $shop = \App\Models\Shop::first();
+    
+    if (!$user) {
+        \Log::error('Utilisateur non connecté dans force-cart-sync');
+        return response()->json(['error' => 'Utilisateur non connecté']);
+    }
+    
+    \Log::info('Utilisateur et shop détectés', [
+        'user_email' => $user->email,
+        'shop_id' => $shop->id,
+        'shop_name' => $shop->name
+    ]);
+    
+    $cartData = $request->input('cart_data');
+    $cart = json_decode($cartData, true) ?? [];
+    
+    \Log::info('Données du panier reçues', [
+        'cart_data_raw' => $cartData,
+        'cart_parsed' => $cart,
+        'cart_count' => count($cart)
+    ]);
+    
+    // Sauvegarder dans la session
+    session(['cart_' . $shop->id => $cart]);
+    
+    \Log::info('Panier sauvegardé en session', [
+        'session_key' => 'cart_' . $shop->id,
+        'session_cart' => session()->get('cart_' . $shop->id, [])
+    ]);
+    
+    \Log::info('Force sync cart', [
+        'user' => $user->email,
+        'shop_id' => $shop->id,
+        'cart' => $cart
+    ]);
+    
+    return response()->json([
+        'success' => true,
+        'cart' => $cart,
+        'message' => 'Panier synchronisé avec succès'
+    ]);
+});
 
 // Route de test pour vérifier que le système fonctionne
 Route::get('/test-payment-proof', function () {
@@ -413,6 +542,7 @@ Route::get('/payment-success/{shop_slug}', function ($shop_slug) {
     
     return view('shop.payment-success', compact('shop'));
 });
+
 
 // Route de diagnostic pour voir les commandes
 Route::get('/debug-orders', function () {

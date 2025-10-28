@@ -253,13 +253,13 @@
         <div class="max-w-6xl mx-auto px-6">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <div class="flex items-center">
+                <a href="{{ $shop->isOnCustomDomain() ? route('shop.home') : route('shop.home.slug', ['shop' => $shop->slug]) }}" class="flex items-center hover:opacity-80 transition-opacity duration-200">
                     @if($shop->logo)
                         <img src="{{ Storage::url($shop->logo) }}" alt="{{ $shop->name }}" class="h-8 w-auto">
                     @else
                         <h1 class="text-xl font-light tracking-wide text-black">{{ $shop->name }}</h1>
                     @endif
-                </div>
+                </a>
                 
                 <!-- Navigation -->
                 <nav class="hidden md:flex space-x-8">
@@ -285,21 +285,21 @@
                 
                 <!-- Actions -->
                 <div class="flex items-center space-x-6">
-                                        <!-- Cart -->
-                    <a href="{{ $shop->isOnCustomDomain() ? route('shop.cart') : route('shop.cart.slug', $shop->slug) }}" 
-                       class="text-gray-600 hover:text-black transition-colors duration-200 relative group">
+                    <!-- Cart - Masqué sur mobile -->
+                    <a href="{{ $shop->isOnCustomDomain() ? route('shop.cart') : '/shop/'.$shop->slug.'/cart' }}" 
+                       class="hidden md:block text-gray-600 hover:text-black transition-colors duration-200 relative group">
                         <svg class="w-6 h-6 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        <!-- Compteur de panier temporairement masqué -->
-                        <!-- <span id="cart-count-{{ $shop->id }}" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-medium" style="display: none;">
+                        <!-- Compteur de panier -->
+                        <span id="cart-count-{{ $shop->id }}" class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold" style="display: none;">
                             0
-                        </span> -->
+                        </span>
                     </a>
                     
-                    <!-- Auth Status -->
+                    <!-- Auth Status - Masqué sur mobile -->
                     @auth
-                        <div class="relative group">
+                        <div class="hidden md:block relative group">
                             <button class="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -338,7 +338,7 @@
                     @endauth
                     
                     <!-- Mobile Menu Button -->
-                    <button class="md:hidden text-gray-600 hover:text-black transition-colors duration-200">
+                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-black transition-colors duration-200">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
@@ -347,6 +347,98 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+        <div class="fixed inset-y-0 right-0 w-80 bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out" id="mobile-menu">
+            <div class="flex flex-col h-full">
+                <!-- Menu Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Menu</h2>
+                    <button id="close-mobile-menu" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Menu Content -->
+                <div class="flex-1 overflow-y-auto p-6">
+                    <!-- Navigation Links -->
+                    <div class="space-y-6 mb-8">
+                        <a href="{{ route('shop.home.slug', ['shop' => $shop->slug]) }}" class="flex items-center space-x-4 text-gray-700 hover:text-primary transition-colors py-2">
+                            <div class="w-6 h-6 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium">Accueil</span>
+                        </a>
+                        <a href="{{ route('shop.products.slug', ['shop' => $shop->slug]) }}" class="flex items-center space-x-4 text-gray-700 hover:text-primary transition-colors py-2">
+                            <div class="w-6 h-6 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium">Produits</span>
+                        </a>
+                    </div>
+
+                    <!-- User Section -->
+                    @auth
+                        <!-- Panier Mobile -->
+                        <div class="mb-8">
+                            <a href="/shop/{{ $shop->slug }}/cart" class="flex items-center space-x-4 text-gray-700 hover:text-primary transition-colors py-2">
+                                <div class="w-6 h-6 flex items-center justify-center relative">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                    </svg>
+                                    <span id="cart-count-mobile-{{ $shop->id }}" class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                                </div>
+                                <span class="font-medium">Mon panier</span>
+                            </a>
+                        </div>
+
+                        <!-- Profil Utilisateur -->
+                        <div class="mt-auto p-6 bg-gray-50 rounded-xl">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                                    <p class="text-sm text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Bouton Déconnexion -->
+                            <form action="{{ route('shop.logout.slug', ['shop' => $shop->slug]) }}" method="POST" class="w-full">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center justify-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 py-3 px-4 rounded-lg transition-colors font-medium">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                    </svg>
+                                    <span>Se déconnecter</span>
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <!-- Boutons de connexion mobile -->
+                        <div class="mt-auto space-y-4">
+                            <a href="{{ route('shop.login.slug', ['shop' => $shop->slug]) }}" class="block w-full text-center bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                                Se connecter
+                            </a>
+                            <a href="{{ route('shop.register.slug', ['shop' => $shop->slug]) }}" class="block w-full text-center border-2 border-primary text-primary py-3 px-6 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors">
+                                S'inscrire
+                            </a>
+                        </div>
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main>
@@ -469,15 +561,26 @@
 
         // Add to cart functionality
         function addToCart(productId, quantity = 1, productInfo = null) {
+            console.log('=== addToCart appelé ===');
+            console.log('Product ID:', productId);
+            console.log('Quantity:', quantity);
+            console.log('Product Info:', productInfo);
+            
             // S'assurer que quantity est un nombre
             quantity = parseInt(quantity) || 1;
             
             const cart = JSON.parse(localStorage.getItem('cart_{{ $shop->id }}') || '[]');
+            console.log('Panier avant ajout:', cart);
+            
             const existingItem = cart.find(item => item.product_id === productId);
+            console.log('Article existant trouvé:', existingItem);
             
             if (existingItem) {
+                console.log('Quantité avant:', existingItem.quantity);
                 existingItem.quantity = parseInt(existingItem.quantity) + quantity;
+                console.log('Quantité après:', existingItem.quantity);
             } else {
+                console.log('Nouvel article à ajouter');
                 // Si on a les informations du produit, les stocker directement
                 if (productInfo) {
                     cart.push({
@@ -494,10 +597,14 @@
                 }
             }
             
+            console.log('Panier après ajout:', cart);
             localStorage.setItem('cart_{{ $shop->id }}', JSON.stringify(cart));
             
             // Update cart count
             updateCartCount();
+            
+            // Nettoyer le panier pour éviter les doublons
+            cleanCart();
             
             // Show success notification
             if (window.showSuccess) {
@@ -505,6 +612,41 @@
             } else {
                 alert('Produit ajouté au panier !');
             }
+        }
+        
+        // Fonction pour nettoyer le panier et éviter les doublons
+        function cleanCart() {
+            const cart = JSON.parse(localStorage.getItem('cart_{{ $shop->id }}') || '[]');
+            console.log('=== NETTOYAGE DU PANIER ===');
+            console.log('Panier avant nettoyage:', cart);
+            
+            // Grouper les articles par product_id et additionner les quantités
+            const cleanedCart = [];
+            const productMap = new Map();
+            
+            cart.forEach(item => {
+                const productId = item.product_id;
+                if (productMap.has(productId)) {
+                    // Article existant, additionner la quantité
+                    const existingItem = productMap.get(productId);
+                    existingItem.quantity = parseInt(existingItem.quantity) + parseInt(item.quantity);
+                    console.log(`Quantité accumulée pour produit ${productId}:`, existingItem.quantity);
+                } else {
+                    // Nouvel article
+                    productMap.set(productId, { ...item });
+                }
+            });
+            
+            // Convertir la Map en Array
+            cleanedCart.push(...productMap.values());
+            
+            console.log('Panier après nettoyage:', cleanedCart);
+            
+            // Sauvegarder le panier nettoyé
+            localStorage.setItem('cart_{{ $shop->id }}', JSON.stringify(cleanedCart));
+            
+            // Mettre à jour le compteur
+            updateCartCount();
         }
         
         function updateCartCount() {
@@ -526,9 +668,15 @@
                     // Si le localStorage a des produits, l'utiliser
                     console.log('Utilisation du localStorage pour le compteur:', localStorageCount);
                     const cartBadge = document.getElementById('cart-count-{{ $shop->id }}');
+                    const cartBadgeMobile = document.getElementById('cart-count-mobile-{{ $shop->id }}');
+                    
                     if (cartBadge) {
                         cartBadge.textContent = localStorageCount;
                         cartBadge.style.display = 'flex';
+                    }
+                    if (cartBadgeMobile) {
+                        cartBadgeMobile.textContent = localStorageCount;
+                        cartBadgeMobile.style.display = 'flex';
                     }
                 } else {
                     // Sinon, récupérer le compteur via AJAX
@@ -539,11 +687,17 @@
                         .then(data => {
                             console.log('Réponse AJAX:', data);
                             const cartBadge = document.getElementById('cart-count-{{ $shop->id }}');
+                            const cartBadgeMobile = document.getElementById('cart-count-mobile-{{ $shop->id }}');
+                            
                             console.log('Element cartBadge trouvé:', cartBadge);
                             if (cartBadge) {
                                 cartBadge.textContent = data.count;
                                 cartBadge.style.display = data.count > 0 ? 'flex' : 'none';
                                 console.log('Compteur mis à jour:', data.count);
+                            }
+                            if (cartBadgeMobile) {
+                                cartBadgeMobile.textContent = data.count;
+                                cartBadgeMobile.style.display = data.count > 0 ? 'flex' : 'none';
                             }
                         })
                         .catch(error => {
@@ -557,17 +711,40 @@
                 console.log('Panier localStorage:', cart, 'Count:', count);
                 
                 const cartBadge = document.getElementById('cart-count-{{ $shop->id }}');
+                const cartBadgeMobile = document.getElementById('cart-count-mobile-{{ $shop->id }}');
                 console.log('Element cartBadge trouvé:', cartBadge);
                 if (cartBadge) {
                     cartBadge.textContent = count;
                     cartBadge.style.display = count > 0 ? 'flex' : 'none';
                     console.log('Compteur mis à jour:', count);
                 }
+                if (cartBadgeMobile) {
+                    cartBadgeMobile.textContent = count;
+                    cartBadgeMobile.style.display = count > 0 ? 'flex' : 'none';
+                }
             }
         }
         
+        // Fonction globale pour mettre à jour les compteurs de panier
+        window.updateCartCounters = function() {
+            updateCartCount();
+        };
+        
+        // Mettre à jour les compteurs quand on navigue (pour les SPA)
+        window.addEventListener('popstate', function() {
+            setTimeout(updateCartCount, 100);
+        });
+        
+        // Mettre à jour les compteurs toutes les 5 secondes (au cas où)
+        // setInterval(updateCartCount, 5000); // Désactivé pour éviter les boucles
+        
         // Initialize cart count on page load
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== INITIALISATION COMPTEUR PANIER ===');
+            
+            // Nettoyer le panier au chargement de la page
+            cleanCart();
+            
             updateCartCount();
         });
 
@@ -662,6 +839,52 @@
             refreshCSRFToken();
         });
         @endauth
+        
+        // Mobile Menu Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMobileMenu = document.getElementById('close-mobile-menu');
+            
+            // Open mobile menu
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenuOverlay.classList.remove('hidden');
+                    setTimeout(() => {
+                        mobileMenu.classList.remove('translate-x-full');
+                    }, 10);
+                });
+            }
+            
+            // Close mobile menu
+            function closeMenu() {
+                mobileMenu.classList.add('translate-x-full');
+                setTimeout(() => {
+                    mobileMenuOverlay.classList.add('hidden');
+                }, 300);
+            }
+            
+            if (closeMobileMenu) {
+                closeMobileMenu.addEventListener('click', closeMenu);
+            }
+            
+            // Close menu when clicking overlay
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.addEventListener('click', function(e) {
+                    if (e.target === mobileMenuOverlay) {
+                        closeMenu();
+                    }
+                });
+            }
+            
+            // Close menu on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !mobileMenuOverlay.classList.contains('hidden')) {
+                    closeMenu();
+                }
+            });
+        });
     </script>
     
     <!-- Notifications Service -->
