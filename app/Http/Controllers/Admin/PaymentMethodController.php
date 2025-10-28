@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Shop;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class PaymentMethodController extends Controller
 {
@@ -54,10 +53,14 @@ class PaymentMethodController extends Controller
 
         // Upload de l'icône si fournie
         if ($request->hasFile('icon')) {
-            $iconPath = $request->file('icon')->store(
-                "shops/{$shop->slug}/payment-methods", 
-                'public'
-            );
+            $destinationPath = public_path('documents/shops/' . $shop->slug . '/payment-methods');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
+            $filename = uniqid() . '.' . $request->file('icon')->getClientOriginalExtension();
+            $request->file('icon')->move($destinationPath, $filename);
+            $iconPath = 'shops/' . $shop->slug . '/payment-methods/' . $filename;
             $validated['icon'] = $iconPath;
         }
 
@@ -108,12 +111,20 @@ class PaymentMethodController extends Controller
         // Upload de la nouvelle icône si fournie
         if ($request->hasFile('icon')) {
             if ($paymentMethod->icon) {
-                Storage::disk('public')->delete($paymentMethod->icon);
+                $oldImagePath = public_path('documents/' . $paymentMethod->icon);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-            $iconPath = $request->file('icon')->store(
-                "shops/{$shop->slug}/payment-methods", 
-                'public'
-            );
+            
+            $destinationPath = public_path('documents/shops/' . $shop->slug . '/payment-methods');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
+            $filename = uniqid() . '.' . $request->file('icon')->getClientOriginalExtension();
+            $request->file('icon')->move($destinationPath, $filename);
+            $iconPath = 'shops/' . $shop->slug . '/payment-methods/' . $filename;
             $validated['icon'] = $iconPath;
         }
 
@@ -130,7 +141,10 @@ class PaymentMethodController extends Controller
     {
         // Supprimer l'icône si elle existe
         if ($paymentMethod->icon) {
-            Storage::disk('public')->delete($paymentMethod->icon);
+            $imagePath = public_path('documents/' . $paymentMethod->icon);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         $paymentMethod->delete();

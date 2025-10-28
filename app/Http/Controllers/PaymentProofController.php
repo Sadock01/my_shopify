@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class PaymentProofController extends Controller
 {
@@ -69,10 +68,14 @@ class PaymentProofController extends Controller
 
         try {
             // Upload du fichier
-            $filePath = $request->file('payment_proof')->store(
-                "shops/{$order->shop->slug}/payment-proofs", 
-                'public'
-            );
+            $destinationPath = public_path('documents/shops/' . $order->shop->slug . '/payment-proofs');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
+            $filename = uniqid() . '.' . $request->file('payment_proof')->getClientOriginalExtension();
+            $request->file('payment_proof')->move($destinationPath, $filename);
+            $filePath = 'shops/' . $order->shop->slug . '/payment-proofs/' . $filename;
 
             // Mettre à jour la commande avec le chemin du fichier
             $order->update([

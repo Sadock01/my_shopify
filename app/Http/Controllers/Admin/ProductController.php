@@ -7,7 +7,6 @@ use App\Models\Shop;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -52,20 +51,23 @@ class ProductController extends Controller
         ]);
 
         // Upload de l'image principale
-        $imagePath = $request->file('image')->store(
-            "shops/{$shop->slug}/products", 
-            'public'
-        );
+        $destinationPath = public_path('documents/shops/' . $shop->slug . '/products');
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+        
+        $filename = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+        $request->file('image')->move($destinationPath, $filename);
+        $imagePath = 'shops/' . $shop->slug . '/products/' . $filename;
         $validated['image'] = $imagePath;
 
         // Upload des images supplémentaires
         $images = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $images[] = $image->store(
-                    "shops/{$shop->slug}/products", 
-                    'public'
-                );
+                $filename = uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move($destinationPath, $filename);
+                $images[] = 'shops/' . $shop->slug . '/products/' . $filename;
             }
         }
         $validated['images'] = $images;
@@ -126,12 +128,20 @@ class ProductController extends Controller
         // Upload de la nouvelle image principale si fournie
         if ($request->hasFile('image')) {
             if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+                $oldImagePath = public_path('documents/' . $product->image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-            $imagePath = $request->file('image')->store(
-                "shops/{$shop->slug}/products", 
-                'public'
-            );
+            
+            $destinationPath = public_path('documents/shops/' . $shop->slug . '/products');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
+            $filename = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->move($destinationPath, $filename);
+            $imagePath = 'shops/' . $shop->slug . '/products/' . $filename;
             $validated['image'] = $imagePath;
         }
 
@@ -140,16 +150,23 @@ class ProductController extends Controller
             // Supprimer les anciennes images
             if ($product->images) {
                 foreach ($product->images as $oldImage) {
-                    Storage::disk('public')->delete($oldImage);
+                    $oldImagePath = public_path('documents/' . $oldImage);
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
+            }
+            
+            $destinationPath = public_path('documents/shops/' . $shop->slug . '/products');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
             }
             
             $images = [];
             foreach ($request->file('images') as $image) {
-                $images[] = $image->store(
-                    "shops/{$shop->slug}/products", 
-                    'public'
-                );
+                $filename = uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move($destinationPath, $filename);
+                $images[] = 'shops/' . $shop->slug . '/products/' . $filename;
             }
             $validated['images'] = $images;
         }
@@ -180,13 +197,19 @@ class ProductController extends Controller
     {
         // Supprimer l'image principale
         if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+            $imagePath = public_path('documents/' . $product->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         // Supprimer les images supplémentaires
         if ($product->images) {
             foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image);
+                $imagePath = public_path('documents/' . $image);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
             }
         }
 

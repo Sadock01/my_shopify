@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Shop;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
@@ -56,10 +55,14 @@ class CategoryController extends Controller
         
         // Upload de l'image si fournie
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store(
-                "shops/{$shop->slug}/categories", 
-                'public'
-            );
+            $destinationPath = public_path('documents/shops/' . $shop->slug . '/categories');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
+            $filename = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->move($destinationPath, $filename);
+            $imagePath = 'shops/' . $shop->slug . '/categories/' . $filename;
             $validated['image'] = $imagePath;
         }
 
@@ -114,12 +117,20 @@ class CategoryController extends Controller
         // Upload de la nouvelle image si fournie
         if ($request->hasFile('image')) {
             if ($category->image) {
-                Storage::disk('public')->delete($category->image);
+                $oldImagePath = public_path('documents/' . $category->image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-            $imagePath = $request->file('image')->store(
-                "shops/{$shop->slug}/categories", 
-                'public'
-            );
+            
+            $destinationPath = public_path('documents/shops/' . $shop->slug . '/categories');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
+            $filename = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->move($destinationPath, $filename);
+            $imagePath = 'shops/' . $shop->slug . '/categories/' . $filename;
             $validated['image'] = $imagePath;
         }
 
@@ -142,7 +153,10 @@ class CategoryController extends Controller
 
         // Supprimer l'image si elle existe
         if ($category->image) {
-            Storage::disk('public')->delete($category->image);
+            $imagePath = public_path('documents/' . $category->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         $category->delete();

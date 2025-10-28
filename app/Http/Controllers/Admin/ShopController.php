@@ -7,7 +7,6 @@ use App\Models\Shop;
 use App\Models\Category;
 use App\Models\Testimonial;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -199,18 +198,29 @@ class ShopController extends Controller
             ]);
     
             // Upload des images
+            $destinationPath = public_path('documents/shops/' . $shop->slug);
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
             if ($request->hasFile('logo')) {
-                $logoPath = $request->file('logo')->store("shops/{$shop->slug}", 'public');
+                $filename = uniqid() . '.' . $request->file('logo')->getClientOriginalExtension();
+                $request->file('logo')->move($destinationPath, $filename);
+                $logoPath = 'shops/' . $shop->slug . '/' . $filename;
                 $shop->update(['logo' => $logoPath]);
             }
     
             if ($request->hasFile('favicon')) {
-                $faviconPath = $request->file('favicon')->store("shops/{$shop->slug}", 'public');
+                $filename = uniqid() . '.' . $request->file('favicon')->getClientOriginalExtension();
+                $request->file('favicon')->move($destinationPath, $filename);
+                $faviconPath = 'shops/' . $shop->slug . '/' . $filename;
                 $shop->update(['favicon' => $faviconPath]);
             }
     
             if ($request->hasFile('banner')) {
-                $bannerPath = $request->file('banner')->store("shops/{$shop->slug}", 'public');
+                $filename = uniqid() . '.' . $request->file('banner')->getClientOriginalExtension();
+                $request->file('banner')->move($destinationPath, $filename);
+                $bannerPath = 'shops/' . $shop->slug . '/' . $filename;
                 $shop->update(['banner_image' => $bannerPath]);
             }
     
@@ -228,13 +238,22 @@ class ShopController extends Controller
             
             // Supprimer les images uploadées en cas d'erreur
             if (isset($logoPath)) {
-                Storage::disk('public')->delete($logoPath);
+                $imagePath = public_path('documents/' . $logoPath);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
             }
             if (isset($faviconPath)) {
-                Storage::disk('public')->delete($faviconPath);
+                $imagePath = public_path('documents/' . $faviconPath);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
             }
             if (isset($bannerPath)) {
-                Storage::disk('public')->delete($bannerPath);
+                $imagePath = public_path('documents/' . $bannerPath);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
             }
     
             return back()->withInput()
@@ -283,13 +302,22 @@ class ShopController extends Controller
     {
         // Supprimer les images
         if ($shop->logo) {
-            Storage::disk('public')->delete($shop->logo);
+            $imagePath = public_path('documents/' . $shop->logo);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
         if ($shop->favicon) {
-            Storage::disk('public')->delete($shop->favicon);
+            $imagePath = public_path('documents/' . $shop->favicon);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
         if ($shop->banner_image) {
-            Storage::disk('public')->delete($shop->banner_image);
+            $imagePath = public_path('documents/' . $shop->banner_image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         $shop->delete();
@@ -331,39 +359,50 @@ class ShopController extends Controller
 
     private function uploadImages($shop, $request)
     {
+        $destinationPath = public_path('documents/shops/' . $shop->slug);
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+
         // Logo
         if ($request->hasFile('logo')) {
             if ($shop->logo) {
-                Storage::disk('public')->delete($shop->logo);
+                $oldImagePath = public_path('documents/' . $shop->logo);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-            $logoPath = $request->file('logo')->store(
-                "shops/{$shop->slug}", 
-                'public'
-            );
+            $filename = uniqid() . '.' . $request->file('logo')->getClientOriginalExtension();
+            $request->file('logo')->move($destinationPath, $filename);
+            $logoPath = 'shops/' . $shop->slug . '/' . $filename;
             $shop->update(['logo' => $logoPath]);
         }
 
         // Favicon
         if ($request->hasFile('favicon')) {
             if ($shop->favicon) {
-                Storage::disk('public')->delete($shop->favicon);
+                $oldImagePath = public_path('documents/' . $shop->favicon);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-            $faviconPath = $request->file('favicon')->store(
-                "shops/{$shop->slug}", 
-                'public'
-            );
+            $filename = uniqid() . '.' . $request->file('favicon')->getClientOriginalExtension();
+            $request->file('favicon')->move($destinationPath, $filename);
+            $faviconPath = 'shops/' . $shop->slug . '/' . $filename;
             $shop->update(['favicon' => $faviconPath]);
         }
 
         // Bannière
         if ($request->hasFile('banner')) {
             if ($shop->banner_image) {
-                Storage::disk('public')->delete($shop->banner_image);
+                $oldImagePath = public_path('documents/' . $shop->banner_image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-            $bannerPath = $request->file('banner')->store(
-                "shops/{$shop->slug}", 
-                'public'
-            );
+            $filename = uniqid() . '.' . $request->file('banner')->getClientOriginalExtension();
+            $request->file('banner')->move($destinationPath, $filename);
+            $bannerPath = 'shops/' . $shop->slug . '/' . $filename;
             $shop->update(['banner_image' => $bannerPath]);
         }
     }
