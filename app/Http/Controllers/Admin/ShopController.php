@@ -30,6 +30,12 @@ class ShopController extends Controller
         return view('admin.shops.create', compact('templates'));
     }
 
+    public function show(Shop $shop)
+    {
+        $shop->load(['products', 'categories', 'orders', 'testimonials']);
+        return view('admin.shops.show', compact('shop'));
+    }
+
     // public function store(Request $request)
     // {
     //     $validated = $request->validate([
