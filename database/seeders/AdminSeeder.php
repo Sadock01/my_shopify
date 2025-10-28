@@ -16,7 +16,7 @@ class AdminSeeder extends Seeder
         User::create([
             'name' => 'Admin Principal',
             'email' => 'admin@myshopify.com',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make('password'),
             'is_admin' => true,
             'email_verified_at' => now(),
         ]);
@@ -25,7 +25,7 @@ class AdminSeeder extends Seeder
         User::create([
             'name' => 'Admin Secondaire',
             'email' => 'admin2@myshopify.com',
-            'password' => Hash::make('admin456'),
+            'password' => Hash::make('password'),
             'is_admin' => true,
             'email_verified_at' => now(),
         ]);
@@ -34,15 +34,15 @@ class AdminSeeder extends Seeder
         User::create([
             'name' => 'Super Admin',
             'email' => 'superadmin@myshopify.com',
-            'password' => Hash::make('superadmin789'),
+            'password' => Hash::make('password'),
             'is_admin' => true,
             'email_verified_at' => now(),
         ]);
 
         $this->command->info('3 utilisateurs admin ont été créés avec succès !');
-        $this->command->info('Email: admin@myshopify.com | Mot de passe: admin123');
-        $this->command->info('Email: admin2@myshopify.com | Mot de passe: admin456');
-        $this->command->info('Email: superadmin@myshopify.com | Mot de passe: superadmin789');
+        $this->command->info('Email: admin@myshopify.com | Mot de passe: password');
+        $this->command->info('Email: admin2@myshopify.com | Mot de passe: password');
+        $this->command->info('Email: superadmin@myshopify.com | Mot de passe: password');
     }
 }
 
