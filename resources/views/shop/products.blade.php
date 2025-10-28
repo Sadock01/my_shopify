@@ -54,22 +54,25 @@
                         <!-- Price Range -->
                         <div class="mb-8">
                             <label class="block text-sm font-medium text-gray-700 mb-3">Prix</label>
-                            <div class="space-y-3">
-                                <div>
-                                    <input type="range" id="price-min" min="0" max="1000" value="0" 
-                                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
-                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                        <span>0€</span>
-                                        <span id="price-min-value">0€</span>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">Prix minimum</label>
+                                        <input type="number" id="min-price-input" min="{{ $minPrice }}" max="{{ $maxPrice }}" 
+                                               value="{{ $minPrice }}" step="0.01"
+                                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                                               placeholder="Min">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">Prix maximum</label>
+                                        <input type="number" id="max-price-input" min="{{ $minPrice }}" max="{{ $maxPrice }}" 
+                                               value="{{ $maxPrice }}" step="0.01"
+                                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                                               placeholder="Max">
                                     </div>
                                 </div>
-                                <div>
-                                    <input type="range" id="price-max" min="0" max="1000" value="1000" 
-                                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
-                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                        <span id="price-max-value">1000€</span>
-                                        <span>1000€</span>
-                                    </div>
+                                <div class="text-xs text-gray-500 text-center">
+                                    Fourchette: {{ number_format($minPrice, 0) }}€ - {{ number_format($maxPrice, 0) }}€
                                 </div>
                             </div>
                         </div>
@@ -290,10 +293,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-input');
     const categoryFilters = document.querySelectorAll('.category-filter');
-    const priceMinSlider = document.getElementById('price-min');
-    const priceMaxSlider = document.getElementById('price-max');
-    const priceMinValue = document.getElementById('price-min-value');
-    const priceMaxValue = document.getElementById('price-max-value');
+    const minPriceInput = document.getElementById('min-price-input');
+    const maxPriceInput = document.getElementById('max-price-input');
     const sortSelect = document.getElementById('sort-select');
     const clearFiltersBtn = document.getElementById('clear-filters');
     const gridViewBtn = document.getElementById('grid-view');
@@ -302,21 +303,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const productsCount = document.getElementById('products-count');
     
     let currentView = 'grid';
+    let isLoading = false;
+    let searchTimeout;
     
-    // Price range sliders
-    priceMinSlider.addEventListener('input', function() {
-        priceMinValue.textContent = this.value + '€';
-        filterProducts();
-    });
-    
-    priceMaxSlider.addEventListener('input', function() {
-        priceMaxValue.textContent = this.value + '€';
-        filterProducts();
-    });
-    
-    // Search input
+    // Debounced search
     searchInput.addEventListener('input', function() {
-        filterProducts();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterProducts();
+        }, 500); // Attendre 500ms après la dernière frappe
+    });
+    
+    // Price inputs
+    minPriceInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterProducts();
+        }, 300);
+    });
+    
+    maxPriceInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterProducts();
+        }, 300);
     });
     
     // Category filters
@@ -333,10 +343,8 @@ document.addEventListener('DOMContentLoaded', function() {
     clearFiltersBtn.addEventListener('click', function() {
         searchInput.value = '';
         categoryFilters.forEach(filter => filter.checked = false);
-        priceMinSlider.value = 0;
-        priceMaxSlider.value = 1000;
-        priceMinValue.textContent = '0€';
-        priceMaxValue.textContent = '1000€';
+        minPriceInput.value = minPriceInput.min;
+        maxPriceInput.value = maxPriceInput.max;
         sortSelect.value = 'newest';
         filterProducts();
     });
@@ -364,72 +372,111 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function filterProducts() {
-        const searchTerm = searchInput.value.toLowerCase();
+        if (isLoading) return;
+        
+        isLoading = true;
+        
+        // Afficher un indicateur de chargement
+        productsContainer.innerHTML = '<div class="col-span-full flex justify-center items-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div></div>';
+        
+        const searchTerm = searchInput.value.trim();
         const selectedCategories = Array.from(categoryFilters)
             .filter(filter => filter.checked)
             .map(filter => filter.value);
-        const minPrice = parseInt(priceMinSlider.value);
-        const maxPrice = parseInt(priceMaxSlider.value);
+        const minPrice = minPriceInput.value;
+        const maxPrice = maxPriceInput.value;
         const sortBy = sortSelect.value;
         
-        const productCards = document.querySelectorAll('.product-card');
-        let visibleCount = 0;
+        // Construire les paramètres de requête
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('search', searchTerm);
+        if (selectedCategories.length > 0) {
+            selectedCategories.forEach(cat => params.append('category[]', cat));
+        }
+        if (minPrice) params.append('min_price', minPrice);
+        if (maxPrice) params.append('max_price', maxPrice);
+        if (sortBy) params.append('sort', sortBy);
         
-        productCards.forEach(card => {
-            const name = card.dataset.name;
-            const category = card.dataset.category;
-            const price = parseInt(card.dataset.price);
-            
-            const matchesSearch = name.includes(searchTerm);
-            const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(category);
-            const matchesPrice = price >= minPrice && price <= maxPrice;
-            
-            if (matchesSearch && matchesCategory && matchesPrice) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
+        // Faire la requête AJAX
+        fetch(`{{ route('shop.products.slug', ['shop' => $shop->slug]) }}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
             }
-        });
-        
-        // Update products count
-        productsCount.textContent = visibleCount;
-        
-        // Sort products
-        sortProducts(sortBy);
-    }
-    
-    function sortProducts(sortBy) {
-        const productCards = Array.from(document.querySelectorAll('.product-card'));
-        const container = productsContainer;
-        
-        productCards.sort((a, b) => {
-            const nameA = a.dataset.name;
-            const nameB = b.dataset.name;
-            const priceA = parseInt(a.dataset.price);
-            const priceB = parseInt(b.dataset.price);
-            
-            switch(sortBy) {
-                case 'name':
-                    return nameA.localeCompare(nameB);
-                case 'price-low':
-                    return priceA - priceB;
-                case 'price-high':
-                    return priceB - priceA;
-                case 'newest':
-                default:
-                    return 0; // Keep original order
-            }
-        });
-        
-        // Reorder DOM elements
-        productCards.forEach(card => {
-            container.appendChild(card);
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayProducts(data.products);
+            updateProductsCount(data.pagination.total);
+            isLoading = false;
+        })
+        .catch(error => {
+            console.error('Erreur lors du filtrage:', error);
+            productsContainer.innerHTML = '<div class="col-span-full text-center py-12 text-red-500">Erreur lors du chargement des produits</div>';
+            isLoading = false;
         });
     }
     
-    // Initialize
-    filterProducts();
+    function displayProducts(products) {
+        if (products.length === 0) {
+            productsContainer.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">Aucun produit trouvé</div>';
+            return;
+        }
+        
+        let html = '';
+        products.forEach(product => {
+            const imageUrl = product.image ? `{{ asset('documents') }}/${product.image}` : '{{ asset("images/placeholder-product.jpg") }}';
+            const categoryName = product.category ? product.category.name : 'Sans catégorie';
+            const originalPrice = product.original_price && product.original_price > product.price ? 
+                `<span class="text-sm text-gray-500 line-through">${product.original_price.toFixed(2)}€</span>` : '';
+            
+            html += `
+                <div class="product-card bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                    <div class="relative">
+                        <a href="{{ route('shop.product.slug', ['shop' => $shop->slug, 'product' => '']) }}${product.id}">
+                            <img src="${imageUrl}" alt="${product.name}" class="w-full h-48 object-cover">
+                        </a>
+                        ${product.is_featured ? '<div class="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium">Mis en avant</div>' : ''}
+                        ${product.stock <= 0 ? '<div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">Rupture</div>' : ''}
+                    </div>
+                    <div class="p-4">
+                        <div class="mb-2">
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${categoryName}</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
+                            <a href="{{ route('shop.product.slug', ['shop' => $shop->slug, 'product' => '']) }}${product.id}" class="hover:text-black">
+                                ${product.name}
+                            </a>
+                        </h3>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description}</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg font-bold text-black">${product.price.toFixed(2)}€</span>
+                                ${originalPrice}
+                            </div>
+                            <span class="text-xs text-gray-500">Stock: ${product.stock}</span>
+                        </div>
+                        <button onclick="addToCart(${product.id}, 1, {
+                            name: '${product.name.replace(/'/g, "\\'")}',
+                            price: ${product.price},
+                            image: '${product.image}',
+                            category: '${categoryName}'
+                        })" 
+                        class="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium">
+                            Ajouter au panier
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        productsContainer.innerHTML = html;
+    }
+    
+    function updateProductsCount(count) {
+        productsCount.textContent = `${count} produit${count > 1 ? 's' : ''} trouvé${count > 1 ? 's' : ''}`;
+    }
 });
 </script>
 @endpush 
