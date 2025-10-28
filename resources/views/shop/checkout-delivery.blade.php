@@ -199,7 +199,7 @@
                         @foreach($cart as $item)
                         <div class="flex items-center space-x-3">
                             @if(isset($item['image']) && $item['image'])
-                                <img src="{{ Storage::url($item['image']) }}" 
+                                <img src="{{ asset('documents/' . $item['image']) }}" 
                                      alt="{{ $item['name'] }}" 
                                      class="w-12 h-12 object-cover rounded-md">
                             @else

@@ -127,7 +127,7 @@
                                  data-price="{{ $product->price }}"
                                  data-name="{{ strtolower($product->name) }}">
                                 <div class="relative overflow-hidden">
-                                    <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="product-image w-full group-hover:scale-105 transition-transform duration-700">
+                                    <img src="{{ asset('documents/' . $product->image) }}" alt="{{ $product->name }}" class="product-image w-full group-hover:scale-105 transition-transform duration-700">
                                     
                                     <!-- Quick Add Button -->
                                     <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">

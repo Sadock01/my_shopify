@@ -241,7 +241,7 @@
                         <div class="flex items-start space-x-4">
                             <!-- Image du produit -->
                             <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                <img src="/storage/${product.image}" alt="${product.name}" class="w-full h-full object-cover">
+                                <img src="/documents/${product.image}" alt="${product.name}" class="w-full h-full object-cover">
                             </div>
                             
                             <!-- Contenu principal -->
@@ -286,7 +286,7 @@
                         <div class="flex items-start space-x-6">
                             <!-- Image du produit -->
                             <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                <img src="/storage/${product.image}" alt="${product.name}" class="w-full h-full object-cover">
+                                <img src="/documents/${product.image}" alt="${product.name}" class="w-full h-full object-cover">
                             </div>
                             
                             <!-- Contenu principal -->

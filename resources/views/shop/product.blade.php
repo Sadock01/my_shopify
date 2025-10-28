@@ -50,7 +50,7 @@
                 <div class="space-y-4">
                     <!-- Main Image -->
                     <div class="relative">
-                        <img id="main-image" src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" 
+                        <img id="main-image" src="{{ asset('documents/' . $product->image) }}" alt="{{ $product->name }}" 
                              class="w-full h-96 lg:h-[500px] object-cover rounded-2xl">
                         
                         <!-- Favorite Button -->
@@ -75,13 +75,13 @@
                     <div class="flex space-x-4 overflow-x-auto">
                         <button onclick="changeMainImage('{{ $product->image }}')" 
                                 class="thumbnail-btn flex-shrink-0 w-20 h-20 border-2 border-black rounded-lg overflow-hidden">
-                            <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                            <img src="{{ asset('documents/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                         </button>
                         @foreach($product->images as $image)
                             @if($image !== $product->image)
                             <button onclick="changeMainImage('{{ $image }}')" 
                                     class="thumbnail-btn flex-shrink-0 w-20 h-20 border-2 border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors duration-200">
-                                <img src="{{ Storage::url($image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                <img src="{{ asset('documents/' . $image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                             </button>
                             @endif
                         @endforeach
@@ -333,7 +333,7 @@
                 @foreach($relatedProducts as $relatedProduct)
                     <div class="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover-lift">
                         <div class="relative overflow-hidden">
-                            <img src="{{ Storage::url($relatedProduct->image) }}" alt="{{ $relatedProduct->name }}" class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700">
+                            <img src="{{ asset('documents/' . $relatedProduct->image) }}" alt="{{ $relatedProduct->name }}" class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700">
                             
                             <!-- Quick Add Button -->
                             <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">

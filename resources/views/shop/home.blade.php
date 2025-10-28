@@ -9,7 +9,7 @@
     <section class="relative bg-black text-white overflow-hidden">
         @if($shop->banner_image)
             <div class="absolute inset-0">
-                <img src="{{ Storage::url($shop->banner_image) }}" alt="{{ $shop->name }}" class="w-full h-full object-cover">
+                <img src="{{ asset('documents/' . $shop->banner_image) }}" alt="{{ $shop->name }}" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/50"></div>
             </div>
         @endif
@@ -42,7 +42,7 @@
                 @forelse($featuredProducts as $product)
                     <div class="product-card group bg-white border border-gray-200 hover:border-gray-300 transition-all duration-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md">
                         <div class="relative overflow-hidden">
-                            <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="product-image w-full group-hover:scale-105 transition-transform duration-300">
+                            <img src="{{ asset('documents/' . $product->image) }}" alt="{{ $product->name }}" class="product-image w-full group-hover:scale-105 transition-transform duration-300">
                             
                             <!-- Quick Add Button -->
                             <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
