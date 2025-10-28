@@ -67,7 +67,7 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Aucune preuve de paiement disponible pour cette commande.');
         }
 
-        $filePath = storage_path('app/public/' . $order->payment_proof);
+        $filePath = public_path('documents/' . $order->payment_proof);
         
         if (!file_exists($filePath)) {
             return redirect()->back()->with('error', 'Le fichier de preuve de paiement n\'existe plus.');
@@ -85,7 +85,7 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Aucune preuve de paiement disponible pour cette commande.');
         }
 
-        $filePath = storage_path('app/public/' . $order->payment_proof);
+        $filePath = public_path('documents/' . $order->payment_proof);
         
         if (!file_exists($filePath)) {
             return redirect()->back()->with('error', 'Le fichier de preuve de paiement n\'existe plus.');
@@ -107,7 +107,7 @@ class OrderController extends Controller
         try {
             // Supprimer le fichier de preuve de paiement s'il existe
             if ($order->payment_proof) {
-                $filePath = storage_path('app/public/' . $order->payment_proof);
+                $filePath = public_path('documents/' . $order->payment_proof);
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
