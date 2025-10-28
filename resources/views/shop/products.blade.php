@@ -178,7 +178,7 @@
                                             <span class="product-price font-medium text-black">{{ number_format($product->price, 2) }}€</span>
                                         </div>
                                         
-                                        <a href="{{ $shop->isOnCustomDomain() ? route('shop.product', $product->id) : route('shop.product.slug', [$shop->slug, $product->id]) }}" 
+                                        <a href="{{ $shop->isOnCustomDomain() ? route('shop.product', $product->id) : '/shop/' . $shop->slug . '/products/' . $product->id }}" 
                                            class="product-actions text-black hover:text-gray-600 font-medium group-hover:underline transition-colors duration-200 whitespace-nowrap">
                                             Voir →
                                         </a>
