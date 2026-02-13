@@ -419,60 +419,73 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function displayProducts(products) {
-        if (products.length === 0) {
-            productsContainer.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">Aucun produit trouvé</div>';
-            return;
-        }
-        
-        let html = '';
-        products.forEach(product => {
-            const imageUrl = product.image ? `{{ asset('documents') }}/${product.image}` : '{{ asset("images/placeholder-product.jpg") }}';
-            const categoryName = product.category ? product.category.name : 'Sans catégorie';
-            const originalPrice = product.original_price && product.original_price > product.price ? 
-                `<span class="text-sm text-gray-500 line-through">${product.original_price.toFixed(2)}€</span>` : '';
-            
-            html += `
-                <div class="product-card bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden">
-                    <div class="relative">
-                        <a href="/shop/{{ $shop->slug }}/products/${product.id}">
-                            <img src="${imageUrl}" alt="${product.name}" class="w-full h-48 object-cover">
-                        </a>
-                        ${product.is_featured ? '<div class="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium">Mis en avant</div>' : ''}
-                        ${product.stock <= 0 ? '<div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">Rupture</div>' : ''}
-                    </div>
-                    <div class="p-4">
-                        <div class="mb-2">
-                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${categoryName}</span>
-                        </div>
-                        <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
-                            <a href="/shop/{{ $shop->slug }}/products/${product.id}" class="hover:text-black">
-                                ${product.name}
-                            </a>
-                        </h3>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description}</p>
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-lg font-bold text-black">${product.price.toFixed(2)}€</span>
-                                ${originalPrice}
-                            </div>
-                            <span class="text-xs text-gray-500">Stock: ${product.stock}</span>
-                        </div>
-                        <button onclick="addToCart(${product.id}, 1, {
-                            name: '${product.name.replace(/'/g, "\\'")}',
-                            price: ${product.price},
-                            image: '${product.image}',
-                            category: '${categoryName}'
-                        })" 
-                        class="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium">
-                            Ajouter au panier
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-        
-        productsContainer.innerHTML = html;
+    if (products.length === 0) {
+        productsContainer.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">Aucun produit trouvé</div>';
+        return;
     }
+
+    let html = '';
+
+    products.forEach(product => {
+
+        // ✅ Cast propre des prix
+        const price = Number(product.price || 0);
+        const original = Number(product.original_price || 0);
+
+        const imageUrl = product.image
+            ? `{{ asset('documents') }}/${product.image}`
+            : '{{ asset("images/placeholder-product.jpg") }}';
+
+        const categoryName = product.category ? product.category.name : 'Sans catégorie';
+
+        const originalPrice =
+            product.original_price && original > price
+                ? `<span class="text-sm text-gray-500 line-through">${original.toFixed(2)}€</span>`
+                : '';
+
+        html += `
+            <div class="product-card bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                <div class="relative">
+                    <a href="/shop/{{ $shop->slug }}/products/${product.id}">
+                        <img src="${imageUrl}" alt="${product.name}" class="w-full h-48 object-cover">
+                    </a>
+                    ${product.is_featured ? '<div class="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium">Mis en avant</div>' : ''}
+                    ${product.stock <= 0 ? '<div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">Rupture</div>' : ''}
+                </div>
+                <div class="p-4">
+                    <div class="mb-2">
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${categoryName}</span>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        <a href="/shop/{{ $shop->slug }}/products/${product.id}" class="hover:text-black">
+                            ${product.name}
+                        </a>
+                    </h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description ?? ''}</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg font-bold text-black">${price.toFixed(2)}€</span>
+                            ${originalPrice}
+                        </div>
+                        <span class="text-xs text-gray-500">Stock: ${product.stock}</span>
+                    </div>
+                    <button onclick="addToCart(${product.id}, 1, {
+                        name: '${product.name.replace(/'/g, "\\'")}',
+                        price: ${price},
+                        image: '${product.image}',
+                        category: '${categoryName.replace(/'/g, "\\'")}'
+                    })" 
+                    class="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium">
+                        Ajouter au panier
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    productsContainer.innerHTML = html;
+}//J'ai modifié le code pour correction du filtre prix
+
     
     function updateProductsCount(count) {
         productsCount.textContent = `${count} produit${count > 1 ? 's' : ''} trouvé${count > 1 ? 's' : ''}`;

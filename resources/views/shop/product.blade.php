@@ -79,7 +79,7 @@
                         </button>
                         @foreach($product->images as $image)
                             @if($image !== $product->image)
-                            <button onclick="changeMainImage('{{ $image }}')" 
+                            <button onclick="changeMainImage('{{ asset('documents/' . $image) }}', event)"
                                     class="thumbnail-btn flex-shrink-0 w-20 h-20 border-2 border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors duration-200">
                                 <img src="{{ asset('documents/' . $image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                             </button>
